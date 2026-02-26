@@ -8,8 +8,13 @@ export function getRedis(): Redis {
   if (!redis) {
     redis = new Redis(config.REDIS_URL, {
       maxRetriesPerRequest: 3,
+      connectTimeout: 5000,
       retryStrategy(times) {
-        const delay = Math.min(times * 200, 5000);
+        if (times > 5) {
+          logger.warn('Redis max retries reached, giving up');
+          return null;
+        }
+        const delay = Math.min(times * 200, 3000);
         return delay;
       },
       lazyConnect: true,
@@ -26,17 +31,26 @@ export function getRedis(): Redis {
 export async function connectRedis(): Promise<void> {
   try {
     const client = getRedis();
-    await client.connect();
-  } catch (error) {
-    logger.error('Failed to connect to Redis', { error });
+    await Promise.race([
+      client.connect(),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Redis connection timeout')), 5000)
+      ),
+    ]);
+  } catch (error: any) {
+    logger.error('Failed to connect to Redis', { error: error?.message || error });
     // Redis is non-critical – app can run without cache
-    logger.warn('Continuing without Redis');
+    logger.warn('Continuing without Redis — cache disabled');
   }
 }
 
 export async function disconnectRedis(): Promise<void> {
   if (redis) {
-    await redis.quit();
+    try {
+      await redis.quit();
+    } catch {
+      // ignore quit errors
+    }
     redis = null;
     logger.info('Redis disconnected');
   }

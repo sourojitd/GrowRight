@@ -11,11 +11,13 @@ async function bootstrap() {
   // Connect to database
   await connectDatabase();
 
-  // Connect to Redis (non-blocking)
-  await connectRedis();
+  // Connect to Redis (non-blocking — server starts even if Redis fails)
+  connectRedis().catch(() => {
+    logger.warn('Redis unavailable — running without cache');
+  });
 
   // Start HTTP server
-  const server = app.listen(config.PORT, () => {
+  const server = app.listen(config.PORT, '0.0.0.0', () => {
     logger.info(`Server running on port ${config.PORT}`, {
       env: config.NODE_ENV,
       port: config.PORT,
