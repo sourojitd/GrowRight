@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Calendar, Target, Sparkles, Route, Trash2, Edit2 } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiGet } from '@/lib/api';
 import { useChildStore } from '@/stores/childStore';
 import { useMilestones } from '@/hooks/useMilestones';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
+import Select from '@/components/ui/Select';
 import Badge from '@/components/ui/Badge';
 import Progress from '@/components/ui/Progress';
 import Modal from '@/components/ui/Modal';
@@ -21,8 +23,20 @@ import type { Child } from '@/types';
 export default function ChildProfilePage() {
   const { childId } = useParams<{ childId: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const removeChild = useChildStore((s) => s.removeChild);
+  const updateChild = useChildStore((s) => s.updateChild);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({
+    name: '',
+    dateOfBirth: '',
+    gender: '',
+    bloodGroup: '',
+    notes: '',
+  });
+  const [editErrors, setEditErrors] = useState<Record<string, string>>({});
 
   const { data: child, isLoading } = useQuery({
     queryKey: ['child', childId],
@@ -31,6 +45,18 @@ export default function ChildProfilePage() {
   });
 
   const { progress, summary } = useMilestones(childId);
+
+  useEffect(() => {
+    if (child) {
+      setEditForm({
+        name: child.name,
+        dateOfBirth: child.dateOfBirth.slice(0, 10),
+        gender: child.gender || '',
+        bloodGroup: child.bloodGroup || '',
+        notes: child.notes || '',
+      });
+    }
+  }, [child]);
 
   if (isLoading) return <PageSpinner />;
   if (!child) return null;
@@ -42,6 +68,32 @@ export default function ChildProfilePage() {
       navigate('/children');
     } catch {
       toast.error('Failed to delete');
+    }
+  };
+
+  const handleEdit = async (e: FormEvent) => {
+    e.preventDefault();
+    const errs: Record<string, string> = {};
+    if (!editForm.name.trim()) errs.name = 'Name is required';
+    if (!editForm.dateOfBirth) errs.dateOfBirth = 'Date of birth is required';
+    if (Object.keys(errs).length > 0) return setEditErrors(errs);
+
+    setIsEditing(true);
+    try {
+      await updateChild(child.id, {
+        name: editForm.name,
+        dateOfBirth: editForm.dateOfBirth,
+        gender: editForm.gender || undefined,
+        bloodGroup: editForm.bloodGroup || undefined,
+        notes: editForm.notes || undefined,
+      });
+      await queryClient.invalidateQueries({ queryKey: ['child', childId] });
+      toast.success('Profile updated');
+      setShowEditModal(false);
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Failed to update');
+    } finally {
+      setIsEditing(false);
     }
   };
 
@@ -61,7 +113,7 @@ export default function ChildProfilePage() {
             </div>
           </div>
           <div className="flex gap-2 mt-4">
-            <Button variant="secondary" size="sm">
+            <Button variant="secondary" size="sm" onClick={() => setShowEditModal(true)}>
               <Edit2 className="w-4 h-4" /> Edit
             </Button>
             <Button variant="danger" size="sm" onClick={() => setShowDeleteModal(true)}>
@@ -148,6 +200,81 @@ export default function ChildProfilePage() {
           </div>
         </Card>
       </AnimatedSection>
+
+      {/* Edit Modal */}
+      <Modal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        title="Edit Profile"
+      >
+        <form onSubmit={handleEdit} className="space-y-5">
+          <Input
+            id="edit-name"
+            label="Child's name"
+            placeholder="Enter name"
+            value={editForm.name}
+            onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+            error={editErrors.name}
+          />
+          <Input
+            id="edit-dob"
+            label="Date of birth"
+            type="date"
+            value={editForm.dateOfBirth}
+            onChange={(e) => setEditForm({ ...editForm, dateOfBirth: e.target.value })}
+            error={editErrors.dateOfBirth}
+          />
+          <Select
+            id="edit-gender"
+            label="Gender (optional)"
+            placeholder="Select gender"
+            value={editForm.gender}
+            onChange={(e) => setEditForm({ ...editForm, gender: e.target.value })}
+            options={[
+              { value: 'MALE', label: 'Boy' },
+              { value: 'FEMALE', label: 'Girl' },
+              { value: 'OTHER', label: 'Other' },
+            ]}
+          />
+          <Select
+            id="edit-bloodGroup"
+            label="Blood group (optional)"
+            placeholder="Select blood group"
+            value={editForm.bloodGroup}
+            onChange={(e) => setEditForm({ ...editForm, bloodGroup: e.target.value })}
+            options={[
+              { value: 'A+', label: 'A+' },
+              { value: 'A-', label: 'A-' },
+              { value: 'B+', label: 'B+' },
+              { value: 'B-', label: 'B-' },
+              { value: 'O+', label: 'O+' },
+              { value: 'O-', label: 'O-' },
+              { value: 'AB+', label: 'AB+' },
+              { value: 'AB-', label: 'AB-' },
+            ]}
+          />
+          <div className="space-y-1.5">
+            <label className="block text-subhead font-medium text-text-primary">
+              Notes (optional)
+            </label>
+            <textarea
+              className="input-field resize-none"
+              rows={3}
+              placeholder="Any additional notes..."
+              value={editForm.notes}
+              onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
+            />
+          </div>
+          <div className="flex gap-3 pt-2">
+            <Button type="button" variant="secondary" onClick={() => setShowEditModal(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="gradient" isLoading={isEditing} className="flex-1">
+              Save Changes
+            </Button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Delete Modal */}
       <Modal

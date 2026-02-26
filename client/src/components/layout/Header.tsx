@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Bell, Menu } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useChildStore } from '@/stores/childStore';
+import NotificationsDropdown from './NotificationsDropdown';
 
 const titles: Record<string, string> = {
   '/dashboard': 'Dashboard',
@@ -23,6 +26,8 @@ interface HeaderProps {
 export default function Header({ onMenuClick }: HeaderProps) {
   const location = useLocation();
   const { user } = useAuth();
+  const selectedChild = useChildStore((s) => s.selectedChild);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const title = titles[location.pathname] || 'GrowRight';
 
@@ -48,14 +53,23 @@ export default function Header({ onMenuClick }: HeaderProps) {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="relative p-2 rounded-xl hover:bg-surface-secondary/80 transition-colors"
-          >
-            <Bell className="w-5 h-5 text-text-secondary" strokeWidth={1.5} />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-accent-red rounded-full animate-glow" />
-          </motion.button>
+          <div className="relative">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowNotifications((v) => !v)}
+              className="relative p-2 rounded-xl hover:bg-surface-secondary/80 transition-colors"
+            >
+              <Bell className="w-5 h-5 text-text-secondary" strokeWidth={1.5} />
+              {selectedChild && (
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-accent-red rounded-full animate-glow" />
+              )}
+            </motion.button>
+            <NotificationsDropdown
+              isOpen={showNotifications}
+              onClose={() => setShowNotifications(false)}
+            />
+          </div>
 
           <div className="flex items-center gap-3 pl-2 sm:pl-4 border-l border-border-light">
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-accent-blue to-accent-purple flex items-center justify-center text-white text-caption sm:text-subhead font-bold">
