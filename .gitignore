@@ -30,7 +30,6 @@ coverage/
 # Prisma
 .prisma/
 server/prisma/*.db
-server/prisma/migrations/
 
 # Vite
 client/.vite/
