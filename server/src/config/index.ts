@@ -39,8 +39,11 @@ function loadConfig() {
   const result = envSchema.safeParse(process.env);
 
   if (!result.success) {
-    console.error('Invalid environment variables:');
-    console.error(result.error.flatten().fieldErrors);
+    const errors = result.error.flatten().fieldErrors;
+    // Use stdout so Railway deploy logs capture this
+    console.log('=== FATAL: Invalid environment variables ===');
+    console.log(JSON.stringify(errors, null, 2));
+    console.log('=== Missing or invalid vars listed above ===');
     process.exit(1);
   }
 
