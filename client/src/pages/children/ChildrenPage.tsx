@@ -29,7 +29,7 @@ export default function ChildrenPage() {
 
   return (
     <StaggerContainer className="space-y-8">
-      <motion.div variants={staggerItem} className="flex items-center justify-between">
+      <motion.div variants={staggerItem} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-display-sm text-text-primary">Children</h1>
           <p className="text-body text-text-secondary mt-1">
@@ -37,7 +37,7 @@ export default function ChildrenPage() {
           </p>
         </div>
         <Link to="/children/add">
-          <Button variant="gradient">
+          <Button variant="gradient" className="w-full sm:w-auto">
             <Plus className="w-4 h-4" />
             Add Child
           </Button>

@@ -1,6 +1,6 @@
 // GrowRight Sidebar — Sourojit D
 import { NavLink, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard,
   Baby,
@@ -12,6 +12,7 @@ import {
   Shield,
   LogOut,
   ChevronDown,
+  X,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthStore } from '@/stores/authStore';
@@ -27,7 +28,12 @@ const navItems = [
   { to: '/roadmap', icon: Route, label: 'Roadmap' },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { user, isAdmin } = useAuth();
   const logout = useAuthStore((s) => s.logout);
   const navigate = useNavigate();
@@ -38,14 +44,22 @@ export default function Sidebar() {
     navigate('/login');
   };
 
-  return (
-    <aside className="fixed left-0 top-0 bottom-0 w-[260px] bg-surface-primary border-r border-border-light flex flex-col z-30">
+  const sidebarContent = (
+    <>
       {/* Brand */}
-      <div className="px-6 py-5 border-b border-border-light">
-        <h1 className="text-title font-bold tracking-tight">
-          <span className="text-gradient">Grow</span><span className="text-gradient-blue">Right</span>
-        </h1>
-        <p className="text-caption text-text-tertiary mt-0.5">Child Development Tracker</p>
+      <div className="px-6 py-5 border-b border-border-light flex items-center justify-between">
+        <div>
+          <h1 className="text-title font-bold tracking-tight">
+            <span className="text-gradient">Grow</span><span className="text-gradient-blue">Right</span>
+          </h1>
+          <p className="text-caption text-text-tertiary mt-0.5">Child Development Tracker</p>
+        </div>
+        <button
+          onClick={onClose}
+          className="lg:hidden p-1.5 rounded-lg hover:bg-surface-secondary transition-colors"
+        >
+          <X className="w-5 h-5 text-text-secondary" />
+        </button>
       </div>
 
       {/* Child Selector */}
@@ -77,6 +91,7 @@ export default function Sidebar() {
           <NavLink
             key={item.to}
             to={item.to}
+            onClick={onClose}
             className={({ isActive }) =>
               cn(
                 'relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-subhead font-medium transition-all duration-200 ease-out',
@@ -111,6 +126,7 @@ export default function Sidebar() {
             <div className="my-3 border-t border-border-light" />
             <NavLink
               to="/admin"
+              onClick={onClose}
               className={({ isActive }) =>
                 cn(
                   'flex items-center gap-3 px-3 py-2.5 rounded-xl text-subhead font-medium transition-all duration-150',
@@ -131,6 +147,7 @@ export default function Sidebar() {
       <div className="border-t border-border-light px-3 py-3 space-y-1">
         <NavLink
           to="/settings"
+          onClick={onClose}
           className={({ isActive }) =>
             cn(
               'flex items-center gap-3 px-3 py-2.5 rounded-xl text-subhead font-medium transition-all duration-150',
@@ -163,6 +180,40 @@ export default function Sidebar() {
           </div>
         </div>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop sidebar — always visible */}
+      <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-[260px] bg-surface-primary border-r border-border-light flex-col z-30">
+        {sidebarContent}
+      </aside>
+
+      {/* Mobile sidebar — slide-in drawer */}
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={onClose}
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden"
+            />
+            <motion.aside
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              className="fixed left-0 top-0 bottom-0 w-[280px] bg-surface-primary border-r border-border-light flex flex-col z-50 lg:hidden shadow-xl"
+            >
+              {sidebarContent}
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

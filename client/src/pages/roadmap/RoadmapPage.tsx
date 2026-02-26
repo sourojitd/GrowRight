@@ -52,7 +52,7 @@ export default function RoadmapPage() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-display-sm text-text-primary">Development Roadmap</h1>
           <p className="text-body text-text-secondary mt-1">
@@ -61,6 +61,7 @@ export default function RoadmapPage() {
         </div>
         <Button
           variant="gradient"
+          className="w-full sm:w-auto"
           onClick={() => generateMutation.mutate()}
           isLoading={generateMutation.isPending}
         >
@@ -94,14 +95,14 @@ export default function RoadmapPage() {
                 <Card variant="gradient-border" padding="none">
                   <button
                     onClick={() => setExpandedRoadmap(isExpanded ? null : roadmap.id)}
-                    className="w-full flex items-center gap-4 p-6 text-left"
+                    className="w-full flex items-start sm:items-center gap-3 sm:gap-4 p-4 sm:p-6 text-left"
                   >
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-purple/15 to-accent-blue/15 flex items-center justify-center">
-                      <Route className="w-6 h-6 text-accent-purple" />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-accent-purple/15 to-accent-blue/15 flex items-center justify-center flex-shrink-0">
+                      <Route className="w-5 h-5 sm:w-6 sm:h-6 text-accent-purple" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-headline text-text-primary">{roadmap.title}</h3>
-                      <div className="flex items-center gap-3 mt-1">
+                      <h3 className="text-subhead sm:text-headline text-text-primary">{roadmap.title}</h3>
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1">
                         <span className="text-caption text-text-secondary flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
                           {formatDate(roadmap.createdAt)}

@@ -100,9 +100,9 @@ export default function AdminDashboard() {
         <motion.div variants={staggerItem}>
           <Card variant="elevated">
             <h3 className="text-headline text-text-primary mb-4">Users by Subscription</h3>
-            <div className="flex gap-4">
+            <div className="grid grid-cols-3 gap-3 sm:gap-4">
               {stats.usersByTier.map((tier) => (
-                <div key={tier.tier} className="flex-1 p-4 rounded-xl bg-surface-secondary text-center">
+                <div key={tier.tier} className="p-3 sm:p-4 rounded-xl bg-surface-secondary text-center">
                   <p className="text-display-sm text-text-primary">
                     <AnimatedCounter target={tier.count} />
                   </p>
@@ -138,17 +138,17 @@ export default function AdminDashboard() {
             {flags.map((flag) => (
               <div
                 key={flag.name}
-                className="flex items-center justify-between p-4 rounded-xl bg-surface-secondary"
+                className="flex items-center justify-between gap-3 p-3 sm:p-4 rounded-xl bg-surface-secondary"
               >
-                <div>
-                  <p className="text-subhead font-medium text-text-primary">{flag.name}</p>
-                  <p className="text-caption text-text-secondary">{flag.description}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-subhead font-medium text-text-primary truncate">{flag.name}</p>
+                  <p className="text-caption text-text-secondary line-clamp-2">{flag.description}</p>
                 </div>
                 <button
                   onClick={() =>
                     toggleFlagMutation.mutate({ name: flag.name, isEnabled: !flag.isEnabled })
                   }
-                  className={`w-12 h-7 rounded-full transition-all duration-300 relative ${
+                  className={`w-12 h-7 rounded-full transition-all duration-300 relative flex-shrink-0 ${
                     flag.isEnabled ? 'bg-accent-green shadow-glow-green' : 'bg-surface-tertiary'
                   }`}
                 >

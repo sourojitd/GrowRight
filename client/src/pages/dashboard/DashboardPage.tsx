@@ -45,7 +45,7 @@ export default function DashboardPage() {
     <StaggerContainer className="space-y-8">
       {/* Greeting */}
       <motion.div variants={staggerItem}>
-        <h1 className="text-display-lg text-text-primary">
+        <h1 className="text-display-sm sm:text-display-lg text-text-primary">
           {greeting()}, <span className="text-gradient">{user?.name?.split(' ')[0]}</span>
         </h1>
         <p className="text-body text-text-secondary mt-2">

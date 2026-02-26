@@ -64,7 +64,7 @@ export default function MilestonesPage() {
 
       {/* Summary cards */}
       {summary && (
-        <div className="grid grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-5">
           <Card variant="elevated" className="stat-card-green flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-green/20 to-accent-teal/20 flex items-center justify-center">
               <Check className="w-5 h-5 text-accent-green" />
@@ -159,30 +159,37 @@ export default function MilestonesPage() {
               >
                 <button
                   onClick={() => setExpandedId(expandedId === milestone.id ? null : milestone.id)}
-                  className="w-full flex items-center gap-4 p-5 text-left"
+                  className="w-full flex items-start sm:items-center gap-3 sm:gap-4 p-4 sm:p-5 text-left"
                 >
-                  <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center', getCategoryColor(milestone.category))}>
+                  <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0', getCategoryColor(milestone.category))}>
                     <Target className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-subhead font-medium text-text-primary">{milestone.title}</p>
-                    <p className="text-caption text-text-secondary truncate">
+                    <p className="text-caption text-text-secondary">
                       {milestone.ageRangeStartMonth}–{milestone.ageRangeEndMonth} months
                     </p>
+                    <div className="flex flex-wrap items-center gap-1.5 mt-1.5 sm:hidden">
+                      {milestone.isOverdue && <Badge variant="orange">Overdue</Badge>}
+                      {milestone.isUpcoming && <Badge variant="blue">Upcoming</Badge>}
+                      <Badge className={getStatusColor(milestone.status || 'NOT_STARTED')}>
+                        {(milestone.status || 'NOT_STARTED').replace(/_/g, ' ')}
+                      </Badge>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="hidden sm:flex items-center gap-3">
                     {milestone.isOverdue && <Badge variant="orange">Overdue</Badge>}
                     {milestone.isUpcoming && <Badge variant="blue">Upcoming</Badge>}
                     <Badge className={getStatusColor(milestone.status || 'NOT_STARTED')}>
                       {(milestone.status || 'NOT_STARTED').replace(/_/g, ' ')}
                     </Badge>
-                    <ChevronDown
-                      className={cn(
-                        'w-5 h-5 text-text-tertiary transition-transform duration-200',
-                        expandedId === milestone.id && 'rotate-180'
-                      )}
-                    />
                   </div>
+                  <ChevronDown
+                    className={cn(
+                      'w-5 h-5 text-text-tertiary transition-transform duration-200 flex-shrink-0 mt-2.5 sm:mt-0',
+                      expandedId === milestone.id && 'rotate-180'
+                    )}
+                  />
                 </button>
 
                 <AnimatePresence>
@@ -199,7 +206,7 @@ export default function MilestonesPage() {
                           {milestone.description}
                         </p>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <span className="text-caption text-text-tertiary mr-2">Set status:</span>
                           {(['NOT_STARTED', 'IN_PROGRESS', 'ACHIEVED'] as MilestoneStatus[]).map(
                             (status) => (

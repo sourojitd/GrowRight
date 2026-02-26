@@ -1,6 +1,6 @@
 import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Bell } from 'lucide-react';
+import { Bell, Menu } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 const titles: Record<string, string> = {
@@ -15,7 +15,11 @@ const titles: Record<string, string> = {
   '/admin': 'Admin Dashboard',
 };
 
-export default function Header() {
+interface HeaderProps {
+  onMenuClick: () => void;
+}
+
+export default function Header({ onMenuClick }: HeaderProps) {
   const location = useLocation();
   const { user } = useAuth();
 
@@ -23,18 +27,26 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-20 glass-subtle border-b border-white/20">
-      <div className="flex items-center justify-between px-8 py-4">
-        <motion.h2
-          key={title}
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-          className="text-title text-text-primary"
-        >
-          {title}
-        </motion.h2>
+      <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 lg:py-4">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onMenuClick}
+            className="lg:hidden p-2 -ml-2 rounded-xl hover:bg-surface-secondary/80 transition-colors"
+          >
+            <Menu className="w-5 h-5 text-text-secondary" />
+          </button>
+          <motion.h2
+            key={title}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            className="text-headline lg:text-title text-text-primary"
+          >
+            {title}
+          </motion.h2>
+        </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -44,8 +56,8 @@ export default function Header() {
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-accent-red rounded-full animate-glow" />
           </motion.button>
 
-          <div className="flex items-center gap-3 pl-4 border-l border-border-light">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-accent-blue to-accent-purple flex items-center justify-center text-white text-subhead font-bold">
+          <div className="flex items-center gap-3 pl-2 sm:pl-4 border-l border-border-light">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-accent-blue to-accent-purple flex items-center justify-center text-white text-caption sm:text-subhead font-bold">
               {user?.name?.charAt(0)?.toUpperCase() || '?'}
             </div>
             <div className="hidden sm:block">

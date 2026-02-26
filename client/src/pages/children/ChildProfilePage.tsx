@@ -49,24 +49,24 @@ export default function ChildProfilePage() {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
       {/* Profile Header */}
       <Card variant="elevated" padding="none" className="overflow-hidden">
-        <div className="h-32 bg-gradient-to-br from-accent-blue/15 via-accent-purple/10 to-accent-teal/15" />
-        <div className="px-8 pb-8 -mt-10">
-          <div className="flex items-end gap-6">
-            <div className="w-20 h-20 rounded-2xl bg-white shadow-card-elevated flex items-center justify-center border-4 border-white">
-              <span className="text-display text-gradient">{child.name.charAt(0)}</span>
+        <div className="h-24 sm:h-32 bg-gradient-to-br from-accent-blue/15 via-accent-purple/10 to-accent-teal/15" />
+        <div className="px-4 sm:px-8 pb-6 sm:pb-8 -mt-8 sm:-mt-10">
+          <div className="flex items-end gap-4 sm:gap-6">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white shadow-card-elevated flex items-center justify-center border-4 border-white flex-shrink-0">
+              <span className="text-display-sm sm:text-display text-gradient">{child.name.charAt(0)}</span>
             </div>
-            <div className="flex-1 pb-1">
-              <h1 className="text-display-sm text-text-primary">{child.name}</h1>
-              <p className="text-body text-gradient-blue font-medium">{child.ageFormatted}</p>
+            <div className="flex-1 min-w-0 pb-1">
+              <h1 className="text-headline sm:text-display-sm text-text-primary truncate">{child.name}</h1>
+              <p className="text-subhead sm:text-body text-gradient-blue font-medium">{child.ageFormatted}</p>
             </div>
-            <div className="flex gap-2 pb-1">
-              <Button variant="secondary" size="sm">
-                <Edit2 className="w-4 h-4" /> Edit
-              </Button>
-              <Button variant="danger" size="sm" onClick={() => setShowDeleteModal(true)}>
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </div>
+          </div>
+          <div className="flex gap-2 mt-4">
+            <Button variant="secondary" size="sm">
+              <Edit2 className="w-4 h-4" /> Edit
+            </Button>
+            <Button variant="danger" size="sm" onClick={() => setShowDeleteModal(true)}>
+              <Trash2 className="w-4 h-4" />
+            </Button>
           </div>
 
           <div className="mt-6 flex flex-wrap gap-6 text-subhead text-text-secondary">
