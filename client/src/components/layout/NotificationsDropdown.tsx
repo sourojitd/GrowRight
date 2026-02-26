@@ -97,7 +97,7 @@ export default function NotificationsDropdown({ isOpen, onClose }: Notifications
                           {item.activity.title}
                         </p>
                         <p className="text-caption text-text-tertiary">
-                          {getCategoryLabel(item.activity.category)} &middot;{' '}
+                          {getCategoryLabel(item.activity.category as any)} &middot;{' '}
                           {formatDistanceToNow(new Date(item.completedAt), { addSuffix: true })}
                         </p>
                       </div>

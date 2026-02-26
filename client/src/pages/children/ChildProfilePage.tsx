@@ -83,7 +83,7 @@ export default function ChildProfilePage() {
       await updateChild(child.id, {
         name: editForm.name,
         dateOfBirth: editForm.dateOfBirth,
-        gender: editForm.gender || undefined,
+        gender: (editForm.gender || undefined) as 'MALE' | 'FEMALE' | 'OTHER' | undefined,
         bloodGroup: editForm.bloodGroup || undefined,
         notes: editForm.notes || undefined,
       });
