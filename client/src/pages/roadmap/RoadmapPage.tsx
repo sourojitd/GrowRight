@@ -31,8 +31,8 @@ export default function RoadmapPage() {
       queryClient.invalidateQueries({ queryKey: ['roadmaps'] });
       toast.success('Roadmap generated!');
     },
-    onError: (err: any) => {
-      toast.error(err.response?.data?.error || 'Failed to generate roadmap');
+    onError: () => {
+      toast.error('Failed to generate roadmap');
     },
   });
 
@@ -48,7 +48,7 @@ export default function RoadmapPage() {
     );
   }
 
-  if (isLoading) return <PageSpinner />;
+  if (isLoading || !roadmaps) return <PageSpinner />;
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
@@ -213,6 +213,8 @@ export default function RoadmapPage() {
                               }).then(() => {
                                 queryClient.invalidateQueries({ queryKey: ['roadmaps'] });
                                 toast.success('Roadmap archived');
+                              }).catch(() => {
+                                toast.error('Failed to archive roadmap');
                               })
                             }
                           >

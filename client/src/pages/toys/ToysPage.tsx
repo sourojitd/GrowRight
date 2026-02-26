@@ -50,8 +50,6 @@ export default function ToysPage() {
     onError: () => toast.error('Failed to unsave toy'),
   });
 
-  if (isLoading) return <PageSpinner />;
-
   if (!selectedChild) {
     return (
       <EmptyState
@@ -63,6 +61,8 @@ export default function ToysPage() {
       />
     );
   }
+
+  if (isLoading) return <PageSpinner />;
 
   const filtered =
     activeCategory === 'ALL'
@@ -119,7 +119,7 @@ export default function ToysPage() {
       {/* Toy Grid */}
       <motion.div variants={staggerItem} className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {filtered.map((toy, index) => {
-          const isSaved = (toy as any).isSaved;
+          const isSaved = 'isSaved' in toy && toy.isSaved;
           return (
             <motion.div
               key={toy.id}

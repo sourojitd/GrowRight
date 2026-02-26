@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Baby, Target, Sparkles, Route, ArrowRight, Plus, TrendingUp } from 'lucide-react';
@@ -11,16 +10,15 @@ import Badge from '@/components/ui/Badge';
 import EmptyState from '@/components/ui/EmptyState';
 import AnimatedCounter from '@/components/shared/AnimatedCounter';
 import StaggerContainer, { staggerItem } from '@/components/shared/StaggerContainer';
+import { PageSpinner } from '@/components/ui/Spinner';
 import { getCategoryLabel, getCategoryDotColor } from '@/lib/utils';
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const { children, selectedChild, fetchChildren } = useChildren();
+  const { children, selectedChild, isLoading, hasFetched } = useChildren();
   const { progress, summary } = useMilestones(selectedChild?.id);
 
-  useEffect(() => {
-    fetchChildren();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  if (!hasFetched || isLoading) return <PageSpinner />;
 
   if (children.length === 0) {
     return (

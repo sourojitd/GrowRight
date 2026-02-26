@@ -143,7 +143,7 @@ class SyllabusService {
   ): Promise<ComparisonResult> {
     const syllabi = await Promise.all(
       boards.map(async (board) => {
-        const data = await this.getSyllabus(board, grade, subject) as any;
+        const data = await this.getSyllabus(board, grade, subject);
         return { board, data };
       })
     );

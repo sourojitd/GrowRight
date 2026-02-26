@@ -7,6 +7,7 @@ import { config } from './config';
 import { requestLogger } from './middleware/requestLogger';
 import { globalErrorHandler, notFoundHandler } from './middleware/errorHandler';
 import { apiLimiter } from './middleware/rateLimiter';
+import { prisma } from './config/database';
 
 // Route imports
 import authRoutes from './modules/auth/auth.routes';
@@ -46,13 +47,21 @@ app.use(requestLogger);
 app.use(`/api/${config.API_VERSION}`, apiLimiter);
 
 // ─── Health Check ─────────────────────────────────────
-app.get('/health', (_req, res) => {
-  res.json({
-    status: 'ok',
+app.get('/health', async (_req, res) => {
+  let dbStatus = 'ok';
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+  } catch {
+    dbStatus = 'error';
+  }
+
+  const status = dbStatus === 'ok' ? 'ok' : 'degraded';
+  res.status(status === 'ok' ? 200 : 503).json({
+    status,
     timestamp: new Date().toISOString(),
     version: process.env.npm_package_version || '0.1.0',
     environment: config.NODE_ENV,
-    author: 'Sourojit D',
+    services: { database: dbStatus },
   });
 });
 

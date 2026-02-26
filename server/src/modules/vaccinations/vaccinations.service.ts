@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '../../config/database';
 import { NotFoundError, ForbiddenError } from '../../middleware/errorHandler';
 import { calculateAgeInMonths } from '../../utils/helpers';
@@ -7,7 +8,7 @@ class VaccinationsService {
    * Get all reference vaccinations, optionally filtered by category.
    */
   async getAll(category?: 'GOVERNMENT' | 'PRIVATE') {
-    const where: any = {};
+    const where: Prisma.VaccinationWhereInput = {};
     if (category) where.category = category;
 
     return prisma.vaccination.findMany({

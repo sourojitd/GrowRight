@@ -6,6 +6,7 @@ import Card from '@/components/ui/Card';
 import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
 import Button from '@/components/ui/Button';
+import { getApiErrorMessage } from '@/lib/api';
 import toast from 'react-hot-toast';
 
 export default function AddChildPage() {
@@ -38,8 +39,8 @@ export default function AddChildPage() {
       });
       toast.success(`${child.name}'s profile created!`);
       navigate(`/children/${child.id}`);
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Failed to add child');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to add child'));
     } finally {
       setIsLoading(false);
     }

@@ -4,7 +4,7 @@ import { User, Lock, CreditCard, Heart, Copy, Check } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { useAuthStore } from '@/stores/authStore';
-import { apiPatch, apiPost } from '@/lib/api';
+import { apiPatch, apiPost, getApiErrorMessage } from '@/lib/api';
 import Card from '@/components/ui/Card';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
@@ -31,7 +31,7 @@ export default function SettingsPage() {
     e.preventDefault();
     setProfileLoading(true);
     try {
-      const updated = await apiPatch<any>('/users/profile', { name });
+      const updated = await apiPatch<{ name: string }>('/users/profile', { name });
       setUser({ ...user!, name: updated.name });
       toast.success('Profile updated');
     } catch {
@@ -53,8 +53,8 @@ export default function SettingsPage() {
       toast.success('Password changed');
       setCurrentPassword('');
       setNewPassword('');
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Failed to change password');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to change password'));
     } finally {
       setPasswordLoading(false);
     }

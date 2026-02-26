@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '../../config/database';
 import { normalizePagination, buildPaginationMeta, sanitizeUser } from '../../utils/helpers';
 import { PaginationQuery } from '../../types';
@@ -48,7 +49,7 @@ class AdminService {
   async getUsers(query: PaginationQuery & { search?: string }) {
     const { page, limit, skip, sortBy, sortOrder } = normalizePagination(query);
 
-    const where: any = {};
+    const where: Prisma.UserWhereInput = {};
     if (query.search) {
       where.OR = [
         { name: { contains: query.search, mode: 'insensitive' } },
@@ -79,7 +80,7 @@ class AdminService {
   async getAuditLogs(query: PaginationQuery & { action?: string; userId?: string }) {
     const { page, limit, skip } = normalizePagination(query);
 
-    const where: any = {};
+    const where: Prisma.AuditLogWhereInput = {};
     if (query.action) where.action = query.action;
     if (query.userId) where.userId = query.userId;
 
@@ -108,14 +109,14 @@ class AdminService {
     });
   }
 
-  async updateMilestone(milestoneId: string, data: any) {
+  async updateMilestone(milestoneId: string, data: Prisma.MilestoneUpdateInput) {
     return prisma.milestone.update({
       where: { id: milestoneId },
       data,
     });
   }
 
-  async updateActivity(activityId: string, data: any) {
+  async updateActivity(activityId: string, data: Prisma.ActivityUpdateInput) {
     return prisma.activity.update({
       where: { id: activityId },
       data,

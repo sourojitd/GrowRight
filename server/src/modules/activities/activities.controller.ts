@@ -1,13 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import { activitiesService } from './activities.service';
-import { AuthenticatedRequest } from '../../types';
+import { AuthenticatedRequest, MilestoneCategory } from '../../types';
 
 class ActivitiesController {
   async getAll(req: Request, res: Response, next: NextFunction) {
     try {
       const { category, ageMonths } = req.query;
       const activities = await activitiesService.getActivities({
-        category: category as any,
+        category: category as MilestoneCategory | undefined,
         ageMonths: ageMonths ? parseInt(ageMonths as string) : undefined,
       });
       res.json({ success: true, data: activities });

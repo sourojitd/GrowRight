@@ -117,3 +117,12 @@ export async function apiPatch<T>(url: string, body?: unknown): Promise<T> {
 export async function apiDelete(url: string): Promise<void> {
   await api.delete(url);
 }
+
+/** Extract a user-friendly error message from API errors (avoids `catch (err: any)`) */
+export function getApiErrorMessage(err: unknown, fallback = 'Something went wrong'): string {
+  if (err && typeof err === 'object' && 'response' in err) {
+    const response = (err as { response?: { data?: { error?: string } } }).response;
+    return response?.data?.error || fallback;
+  }
+  return fallback;
+}

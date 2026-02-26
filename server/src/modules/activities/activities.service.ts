@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '../../config/database';
 import { cacheService } from '../../services/cache.service';
 import { NotFoundError, ForbiddenError } from '../../middleware/errorHandler';
@@ -18,7 +19,7 @@ class ActivitiesService {
     const cached = await cacheService.get(key);
     if (cached) return cached;
 
-    const where: any = {};
+    const where: Prisma.ActivityWhereInput = {};
 
     if (filters?.category) {
       where.category = filters.category;

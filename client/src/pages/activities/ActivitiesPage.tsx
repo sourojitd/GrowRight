@@ -40,8 +40,6 @@ export default function ActivitiesPage() {
     onError: () => toast.error('Failed to log activity'),
   });
 
-  if (isLoading) return <PageSpinner />;
-
   if (!selectedChild) {
     return (
       <EmptyState
@@ -53,6 +51,8 @@ export default function ActivitiesPage() {
       />
     );
   }
+
+  if (isLoading) return <PageSpinner />;
 
   const filtered =
     activeCategory === 'ALL'
@@ -114,10 +114,10 @@ export default function ActivitiesPage() {
               variant="gradient-border"
               className={cn(
                 'relative',
-                (activity as any).isCompleted && 'bg-accent-green/5'
+                'isCompleted' in activity && activity.isCompleted && 'bg-accent-green/5'
               )}
             >
-              {(activity as any).isCompleted && (
+              {'isCompleted' in activity && activity.isCompleted && (
                 <div className="absolute top-4 right-4">
                   <div className="w-6 h-6 rounded-full bg-gradient-to-br from-accent-green to-accent-teal flex items-center justify-center shadow-glow-green">
                     <Check className="w-4 h-4 text-white" />
@@ -158,11 +158,11 @@ export default function ActivitiesPage() {
               <div className="flex items-center gap-2">
                 <Button
                   size="sm"
-                  variant={(activity as any).isCompleted ? 'secondary' : 'gradient'}
+                  variant={'isCompleted' in activity && activity.isCompleted ? 'secondary' : 'gradient'}
                   onClick={() => logMutation.mutate({ activityId: activity.id })}
                   disabled={logMutation.isPending}
                 >
-                  {(activity as any).isCompleted ? (
+                  {'isCompleted' in activity && activity.isCompleted ? (
                     <>
                       <Star className="w-3.5 h-3.5" /> Do Again
                     </>

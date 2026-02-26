@@ -1,13 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import { toysService } from './toys.service';
-import { AuthenticatedRequest } from '../../types';
+import { AuthenticatedRequest, MilestoneCategory } from '../../types';
 
 class ToysController {
   async getAll(req: Request, res: Response, next: NextFunction) {
     try {
       const { category, ageMonths } = req.query;
       const toys = await toysService.getAll({
-        category: category as any,
+        category: category as MilestoneCategory | undefined,
         ageMonths: ageMonths ? parseInt(ageMonths as string) : undefined,
       });
       res.json({ success: true, data: toys });

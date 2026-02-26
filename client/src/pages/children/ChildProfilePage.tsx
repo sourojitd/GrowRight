@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Calendar, Target, Sparkles, Route, Trash2, Edit2, CheckCheck } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { apiGet, apiPost } from '@/lib/api';
+import { apiGet, apiPost, getApiErrorMessage } from '@/lib/api';
 import { useChildStore } from '@/stores/childStore';
 import { useMilestones } from '@/hooks/useMilestones';
 import Card from '@/components/ui/Card';
@@ -97,8 +97,8 @@ export default function ChildProfilePage() {
       await queryClient.invalidateQueries({ queryKey: ['child', childId] });
       toast.success('Profile updated');
       setShowEditModal(false);
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Failed to update');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to update'));
     } finally {
       setIsEditing(false);
     }

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { syllabusService } from './syllabus.service';
+import { SyllabusBoard } from '../../types';
 
 class SyllabusController {
   async getOptions(_req: Request, res: Response, next: NextFunction) {
@@ -15,7 +16,7 @@ class SyllabusController {
     try {
       const { board, grade, subject } = req.params;
       const syllabus = await syllabusService.getSyllabus(
-        board as any,
+        board as SyllabusBoard,
         parseInt(grade as string),
         subject as string
       );

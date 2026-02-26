@@ -1,5 +1,7 @@
+import { Prisma, RoadmapStatus } from '@prisma/client';
 import { prisma } from '../../config/database';
 import { NotFoundError, ForbiddenError, AppError } from '../../middleware/errorHandler';
+import { MilestoneCategory } from '../../types';
 import { aiService } from '../../services/ai.service';
 import { featureFlagService } from '../../services/featureFlag.service';
 import { calculateAgeInMonths } from '../../utils/helpers';
@@ -78,7 +80,7 @@ class RoadmapService {
       childName: child.name,
       ageMonths,
       completedMilestones: completedMilestones.map((cm) => cm.milestone.title),
-      focusAreas: focusAreas as any,
+      focusAreas: focusAreas as MilestoneCategory[] | undefined,
     });
 
     // Save to database
@@ -89,7 +91,7 @@ class RoadmapService {
         title: `Development Plan – ${child.name} (${ageMonths}m)`,
         description: generated.summary,
         generatedBy: aiService.isEnabled ? 'AI' : 'MANUAL',
-        content: generated as any,
+        content: generated as unknown as Prisma.InputJsonValue,
         status: 'ACTIVE',
       },
     });
@@ -104,7 +106,7 @@ class RoadmapService {
 
     return prisma.roadmap.update({
       where: { id: roadmapId },
-      data: { status: status as any },
+      data: { status: status as RoadmapStatus },
     });
   }
 

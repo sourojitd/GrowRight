@@ -5,10 +5,10 @@ export function useChildren() {
   const store = useChildStore();
 
   useEffect(() => {
-    if (store.children.length === 0 && !store.isLoading) {
+    if (!store.hasFetched && !store.isLoading) {
       store.fetchChildren();
     }
-  }, []);  // eslint-disable-line react-hooks/exhaustive-deps
+  }, [store.hasFetched, store.isLoading, store.fetchChildren]);
 
   return store;
 }

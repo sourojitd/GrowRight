@@ -6,6 +6,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { apiGet } from '@/lib/api';
 import { useChildStore } from '@/stores/childStore';
 import { getCategoryLabel } from '@/lib/utils';
+import type { MilestoneCategory } from '@/types';
 
 interface ActivityHistoryItem {
   id: string;
@@ -16,7 +17,7 @@ interface ActivityHistoryItem {
   notes: string | null;
   activity: {
     id: string;
-    category: string;
+    category: MilestoneCategory;
     title: string;
     description: string;
   };
@@ -97,7 +98,7 @@ export default function NotificationsDropdown({ isOpen, onClose }: Notifications
                           {item.activity.title}
                         </p>
                         <p className="text-caption text-text-tertiary">
-                          {getCategoryLabel(item.activity.category as any)} &middot;{' '}
+                          {getCategoryLabel(item.activity.category)} &middot;{' '}
                           {formatDistanceToNow(new Date(item.completedAt), { addSuffix: true })}
                         </p>
                       </div>

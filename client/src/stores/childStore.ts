@@ -2,10 +2,28 @@ import { create } from 'zustand';
 import type { Child } from '@/types';
 import { apiGet, apiPost, apiPatch, apiDelete } from '@/lib/api';
 
+function getPersistedChild(): Child | null {
+  try {
+    const raw = localStorage.getItem('selectedChild');
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function persistChild(child: Child | null) {
+  if (child) {
+    localStorage.setItem('selectedChild', JSON.stringify(child));
+  } else {
+    localStorage.removeItem('selectedChild');
+  }
+}
+
 interface ChildState {
   children: Child[];
   selectedChild: Child | null;
   isLoading: boolean;
+  hasFetched: boolean;
   fetchChildren: () => Promise<void>;
   selectChild: (child: Child | null) => void;
   addChild: (data: { name: string; dateOfBirth: string; gender?: string; notes?: string }) => Promise<Child>;
@@ -15,28 +33,40 @@ interface ChildState {
 
 export const useChildStore = create<ChildState>((set, get) => ({
   children: [],
-  selectedChild: null,
+  selectedChild: getPersistedChild(),
   isLoading: false,
+  hasFetched: false,
 
   fetchChildren: async () => {
     set({ isLoading: true });
     try {
       const children = await apiGet<Child[]>('/children');
-      set({ children, isLoading: false });
+      const current = get().selectedChild;
 
-      // Auto-select first child if none selected
-      if (!get().selectedChild && children.length > 0) {
-        set({ selectedChild: children[0] });
+      // Revalidate persisted child against fresh data, or auto-select first
+      let selected: Child | null = null;
+      if (current) {
+        selected = children.find((c) => c.id === current.id) || null;
       }
+      if (!selected && children.length > 0) {
+        selected = children[0] ?? null;
+      }
+
+      persistChild(selected);
+      set({ children, selectedChild: selected, isLoading: false, hasFetched: true });
     } catch {
-      set({ isLoading: false });
+      set({ isLoading: false, hasFetched: true });
     }
   },
 
-  selectChild: (child) => set({ selectedChild: child }),
+  selectChild: (child) => {
+    persistChild(child);
+    set({ selectedChild: child });
+  },
 
   addChild: async (data) => {
     const child = await apiPost<Child>('/children', data);
+    persistChild(child);
     set((state) => ({
       children: [child, ...state.children],
       selectedChild: child,
@@ -46,17 +76,23 @@ export const useChildStore = create<ChildState>((set, get) => ({
 
   updateChild: async (childId, data) => {
     const updated = await apiPatch<Child>(`/children/${childId}`, data);
-    set((state) => ({
-      children: state.children.map((c) => (c.id === childId ? { ...c, ...updated } : c)),
-      selectedChild: state.selectedChild?.id === childId ? { ...state.selectedChild, ...updated } : state.selectedChild,
-    }));
+    set((state) => {
+      const newChildren = state.children.map((c) => (c.id === childId ? { ...c, ...updated } : c));
+      const newSelected = state.selectedChild?.id === childId ? { ...state.selectedChild, ...updated } : state.selectedChild;
+      persistChild(newSelected);
+      return { children: newChildren, selectedChild: newSelected };
+    });
   },
 
   removeChild: async (childId) => {
     await apiDelete(`/children/${childId}`);
-    set((state) => ({
-      children: state.children.filter((c) => c.id !== childId),
-      selectedChild: state.selectedChild?.id === childId ? null : state.selectedChild,
-    }));
+    set((state) => {
+      const newChildren = state.children.filter((c) => c.id !== childId);
+      const newSelected = state.selectedChild?.id === childId
+        ? newChildren[0] || null
+        : state.selectedChild;
+      persistChild(newSelected);
+      return { children: newChildren, selectedChild: newSelected };
+    });
   },
 }));

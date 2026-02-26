@@ -2,6 +2,7 @@ import { useState, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '@/stores/authStore';
+import { getApiErrorMessage } from '@/lib/api';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import toast from 'react-hot-toast';
@@ -35,9 +36,8 @@ export default function RegisterPage() {
       await register({ name, email, password });
       toast.success('Account created!');
       navigate('/dashboard');
-    } catch (err: any) {
-      const message = err.response?.data?.error || 'Registration failed';
-      toast.error(message);
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Registration failed'));
     }
   };
 

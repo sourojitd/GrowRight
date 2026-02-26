@@ -37,8 +37,8 @@ export async function connectRedis(): Promise<void> {
         setTimeout(() => reject(new Error('Redis connection timeout')), 5000)
       ),
     ]);
-  } catch (error: any) {
-    logger.error('Failed to connect to Redis', { error: error?.message || error });
+  } catch (error) {
+    logger.error('Failed to connect to Redis', { error: error instanceof Error ? error.message : error });
     // Redis is non-critical – app can run without cache
     logger.warn('Continuing without Redis — cache disabled');
   }

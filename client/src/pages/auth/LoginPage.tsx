@@ -2,6 +2,7 @@ import { useState, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '@/stores/authStore';
+import { getApiErrorMessage } from '@/lib/api';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import toast from 'react-hot-toast';
@@ -24,9 +25,8 @@ export default function LoginPage() {
       await login({ email, password });
       toast.success('Welcome back!');
       navigate('/dashboard');
-    } catch (err: any) {
-      const message = err.response?.data?.error || 'Login failed';
-      toast.error(message);
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Login failed'));
     }
   };
 
@@ -107,14 +107,16 @@ export default function LoginPage() {
           </p>
         </motion.div>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="text-center text-caption text-text-tertiary mt-8"
-        >
-          Demo: parent@demo.com / Parent@123456
-        </motion.p>
+        {import.meta.env.DEV && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="text-center text-caption text-text-tertiary mt-8"
+          >
+            Demo: parent@demo.com / Parent@123456
+          </motion.p>
+        )}
       </motion.div>
     </div>
   );

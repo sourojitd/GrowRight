@@ -93,7 +93,7 @@ class ChildrenService {
         userId,
         name: input.name,
         dateOfBirth: new Date(input.dateOfBirth),
-        gender: input.gender as any,
+        gender: input.gender,
         notes: input.notes,
         bloodGroup: input.bloodGroup,
       },
@@ -118,7 +118,7 @@ class ChildrenService {
       data: {
         ...(input.name && { name: input.name }),
         ...(input.dateOfBirth && { dateOfBirth: new Date(input.dateOfBirth) }),
-        ...(input.gender && { gender: input.gender as any }),
+        ...(input.gender && { gender: input.gender }),
         ...(input.notes !== undefined && { notes: input.notes }),
         ...(input.bloodGroup !== undefined && { bloodGroup: input.bloodGroup }),
       },
