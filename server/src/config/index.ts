@@ -40,11 +40,17 @@ function loadConfig() {
 
   if (!result.success) {
     const errors = result.error.flatten().fieldErrors;
-    // Use stdout so Railway deploy logs capture this
-    console.log('=== FATAL: Invalid environment variables ===');
-    console.log(JSON.stringify(errors, null, 2));
-    console.log('=== Missing or invalid vars listed above ===');
-    process.exit(1);
+    const msg = [
+      '=== FATAL: Invalid environment variables ===',
+      JSON.stringify(errors, null, 2),
+      '=== Missing or invalid vars listed above ===',
+    ].join('\n');
+    // Write synchronously to ensure Railway captures the output before exit
+    process.stdout.write(msg + '\n', () => process.exit(1));
+    // Fallback if callback never fires
+    setTimeout(() => process.exit(1), 1000);
+    // Block the event loop so we don't continue loading
+    throw new Error('Invalid environment configuration');
   }
 
   return result.data;
