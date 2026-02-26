@@ -52,7 +52,7 @@ class AdminController {
   async toggleFlag(req: Request, res: Response, next: NextFunction) {
     try {
       const flag = await adminService.toggleFeatureFlag(
-        req.params.flagName,
+        req.params.flagName as string,
         req.body.isEnabled
       );
       res.json({ success: true, data: flag });

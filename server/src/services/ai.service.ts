@@ -1,6 +1,6 @@
 import { config } from '../config';
 import { logger } from '../config/logger';
-import { GeneratedRoadmap, MilestoneCategory } from '../types';
+import { GeneratedRoadmap, MilestoneCategory, RoadmapSection } from '../types';
 
 /**
  * AI Service – Abstraction layer for LLM integration.

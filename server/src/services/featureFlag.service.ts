@@ -24,7 +24,7 @@ class FeatureFlagService {
     // Check cache first
     const cached = await cacheService.get<{ enabled: boolean; rules: FeatureFlagRule | null }>(key);
     if (cached) {
-      return this.evaluateRules(cached.enabled, cached.rules, context);
+      return this.evaluateRules(cached.enabled, cached.rules, context, flagName);
     }
 
     // Fetch from database
@@ -40,7 +40,7 @@ class FeatureFlagService {
       // Cache the flag
       await cacheService.set(key, { enabled: flag.isEnabled, rules }, CACHE_TTL.MEDIUM);
 
-      return this.evaluateRules(flag.isEnabled, rules, context);
+      return this.evaluateRules(flag.isEnabled, rules, context, flagName);
     } catch (error) {
       logger.warn('Feature flag check failed', { flagName, error });
       return false;
@@ -75,7 +75,8 @@ class FeatureFlagService {
   private evaluateRules(
     enabled: boolean,
     rules: FeatureFlagRule | null,
-    context?: { userId?: string; role?: string; tier?: string }
+    context?: { userId?: string; role?: string; tier?: string },
+    flagName?: string
   ): boolean {
     if (!enabled) return false;
     if (!rules || !context) return enabled;

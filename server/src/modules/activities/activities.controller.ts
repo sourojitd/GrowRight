@@ -19,7 +19,7 @@ class ActivitiesController {
   async getRecommended(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const activities = await activitiesService.getRecommendedForChild(
-        req.params.childId,
+        req.params.childId as string,
         req.user!.userId
       );
       res.json({ success: true, data: activities });
@@ -31,8 +31,8 @@ class ActivitiesController {
   async logActivity(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const result = await activitiesService.logActivity(
-        req.params.childId,
-        req.params.activityId,
+        req.params.childId as string,
+        req.params.activityId as string,
         req.user!.userId,
         req.body
       );
@@ -45,7 +45,7 @@ class ActivitiesController {
   async getHistory(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const history = await activitiesService.getHistory(
-        req.params.childId,
+        req.params.childId as string,
         req.user!.userId
       );
       res.json({ success: true, data: history });

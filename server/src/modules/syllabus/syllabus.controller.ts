@@ -16,8 +16,8 @@ class SyllabusController {
       const { board, grade, subject } = req.params;
       const syllabus = await syllabusService.getSyllabus(
         board as any,
-        parseInt(grade),
-        subject
+        parseInt(grade as string),
+        subject as string
       );
 
       if (!syllabus) {

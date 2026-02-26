@@ -3,7 +3,7 @@ import { cacheService } from '../../services/cache.service';
 import { cacheKey } from '../../utils/helpers';
 import { CACHE_TTL } from '../../utils/constants';
 import { SyllabusBoard } from '../../types';
-import { boardComparisons } from '../../../prisma/data/syllabus/comparisons';
+import { boardComparisons } from '../../data/syllabus/comparisons';
 
 // ─── Subject Normalization ───────────────────────────────
 // Maps board-specific subject names to generic canonical names
@@ -143,7 +143,7 @@ class SyllabusService {
   ): Promise<ComparisonResult> {
     const syllabi = await Promise.all(
       boards.map(async (board) => {
-        const data = await this.getSyllabus(board, grade, subject);
+        const data = await this.getSyllabus(board, grade, subject) as any;
         return { board, data };
       })
     );
@@ -151,12 +151,12 @@ class SyllabusService {
     const boardsData = syllabi
       .filter((s) => s.data)
       .map((s) => {
-        const actualSubject = s.data!.subject;
-        const isRenamed = actualSubject !== subject;
+        const d = s.data as { subject: string; topics: { topicName: string; subtopics: unknown; depthLevel: number; learningObjectives: string | null }[] };
+        const isRenamed = d.subject !== subject;
         return {
           board: s.board,
-          ...(isRenamed ? { originalSubject: actualSubject } : {}),
-          topics: s.data!.topics.map((t) => ({
+          ...(isRenamed ? { originalSubject: d.subject } : {}),
+          topics: d.topics.map((t) => ({
             topicName: t.topicName,
             subtopics: t.subtopics,
             depthLevel: t.depthLevel,

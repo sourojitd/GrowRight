@@ -14,7 +14,7 @@ class ChildrenController {
 
   async getOne(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      const child = await childrenService.getChild(req.params.childId, req.user!.userId);
+      const child = await childrenService.getChild(req.params.childId as string, req.user!.userId);
       res.json({ success: true, data: child });
     } catch (error) {
       next(error);
@@ -33,7 +33,7 @@ class ChildrenController {
   async update(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const child = await childrenService.updateChild(
-        req.params.childId,
+        req.params.childId as string,
         req.user!.userId,
         req.body
       );
@@ -45,7 +45,7 @@ class ChildrenController {
 
   async remove(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      await childrenService.deleteChild(req.params.childId, req.user!.userId);
+      await childrenService.deleteChild(req.params.childId as string, req.user!.userId);
       res.json({ success: true, message: 'Child profile deleted' });
     } catch (error) {
       next(error);

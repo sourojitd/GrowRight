@@ -133,7 +133,7 @@ class AuthService {
     const payload: JwtPayload = { userId, email, role };
 
     const accessToken = jwt.sign(payload, config.JWT_ACCESS_SECRET, {
-      expiresIn: config.JWT_ACCESS_EXPIRES_IN,
+      expiresIn: config.JWT_ACCESS_EXPIRES_IN as any,
     });
 
     const refreshToken = crypto.randomBytes(64).toString('hex');

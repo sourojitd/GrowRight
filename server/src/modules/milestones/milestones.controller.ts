@@ -19,7 +19,7 @@ class MilestonesController {
   async getChildMilestones(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const result = await milestonesService.getChildMilestones(
-        req.params.childId,
+        req.params.childId as string,
         req.user!.userId
       );
       res.json({ success: true, data: result });
@@ -31,8 +31,8 @@ class MilestonesController {
   async updateStatus(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const result = await milestonesService.updateMilestoneStatus(
-        req.params.childId,
-        req.params.milestoneId,
+        req.params.childId as string,
+        req.params.milestoneId as string,
         req.user!.userId,
         req.body
       );
@@ -45,7 +45,7 @@ class MilestonesController {
   async getCategoryProgress(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const progress = await milestonesService.getCategoryProgress(
-        req.params.childId,
+        req.params.childId as string,
         req.user!.userId
       );
       res.json({ success: true, data: progress });
