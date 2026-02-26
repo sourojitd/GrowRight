@@ -1,0 +1,32 @@
+{
+  "name": "growright",
+  "version": "0.1.0",
+  "private": true,
+  "description": "GrowRight – Child development tracking and school syllabus comparison platform",
+  "author": "Sourojit D <soft.jd4u@gmail.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/sourojitd/GrowRight",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sourojitd/GrowRight.git"
+  },
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "build": "npm run build:server && npm run build:client",
+    "build:server": "cd server && npm run build",
+    "build:client": "cd client && npm run build",
+    "db:migrate": "cd server && npx prisma migrate dev",
+    "db:seed": "cd server && npx prisma db seed",
+    "db:studio": "cd server && npx prisma studio",
+    "lint": "cd server && npm run lint && cd ../client && npm run lint",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:build": "docker compose build",
+    "clean": "rm -rf server/dist client/dist node_modules server/node_modules client/node_modules"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}

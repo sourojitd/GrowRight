@@ -1,0 +1,344 @@
+// GrowRight — Database Schema
+// Author: Sourojit D <soft.jd4u@gmail.com>
+// License: MIT
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Users ────────────────────────────────────────────
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String   @map("password_hash")
+  name          String
+  avatarUrl     String?  @map("avatar_url")
+  role          UserRole @default(PARENT)
+  emailVerified Boolean  @default(false) @map("email_verified")
+
+  // Subscription
+  subscriptionTier SubscriptionTier @default(FREE) @map("subscription_tier")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  children      Child[]
+  roadmaps      Roadmap[]
+  refreshTokens RefreshToken[]
+  auditLogs     AuditLog[]
+  subscription  Subscription?
+
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+enum UserRole {
+  PARENT
+  ADMIN
+}
+
+enum SubscriptionTier {
+  FREE
+  PRO
+  PREMIUM
+}
+
+// ─── Refresh Tokens ───────────────────────────────────
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String   @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+// ─── Children ─────────────────────────────────────────
+model Child {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  name        String
+  dateOfBirth DateTime @map("date_of_birth")
+  gender      Gender?
+  avatarUrl   String?  @map("avatar_url")
+  notes       String?
+  bloodGroup  String?  @map("blood_group")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  childMilestones  ChildMilestone[]
+  childActivities  ChildActivity[]
+  roadmaps         Roadmap[]
+
+  @@index([userId])
+  @@index([dateOfBirth])
+  @@map("children")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+// ─── Milestones (Reference Data) ──────────────────────
+model Milestone {
+  id                 String            @id @default(cuid())
+  category           MilestoneCategory
+  title              String
+  description        String
+  ageRangeStartMonth Int               @map("age_range_start_month")
+  ageRangeEndMonth   Int               @map("age_range_end_month")
+  importanceLevel    ImportanceLevel   @default(NORMAL) @map("importance_level")
+  tips               String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  childMilestones ChildMilestone[]
+
+  @@index([category])
+  @@index([ageRangeStartMonth, ageRangeEndMonth])
+  @@map("milestones")
+}
+
+enum MilestoneCategory {
+  MOTOR
+  COGNITIVE
+  SPEECH
+  SOCIAL
+  EMOTIONAL
+}
+
+enum ImportanceLevel {
+  CRITICAL
+  NORMAL
+  OPTIONAL
+}
+
+// ─── Child Milestone Tracking ─────────────────────────
+model ChildMilestone {
+  id           String          @id @default(cuid())
+  childId      String          @map("child_id")
+  milestoneId  String          @map("milestone_id")
+  status       MilestoneStatus @default(NOT_STARTED)
+  achievedDate DateTime?       @map("achieved_date")
+  notes        String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  child     Child     @relation(fields: [childId], references: [id], onDelete: Cascade)
+  milestone Milestone @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+
+  @@unique([childId, milestoneId])
+  @@index([childId])
+  @@index([milestoneId])
+  @@index([status])
+  @@map("child_milestones")
+}
+
+enum MilestoneStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  ACHIEVED
+}
+
+// ─── Activities (Reference Data) ──────────────────────
+model Activity {
+  id              String            @id @default(cuid())
+  category        MilestoneCategory
+  title           String
+  description     String
+  instructions    String?
+  minAgeMonths    Int               @map("min_age_months")
+  maxAgeMonths    Int               @map("max_age_months")
+  durationMinutes Int?              @map("duration_minutes")
+  materials       String[]          @default([])
+  imageUrl        String?           @map("image_url")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  childActivities ChildActivity[]
+
+  @@index([category])
+  @@index([minAgeMonths, maxAgeMonths])
+  @@map("activities")
+}
+
+// ─── Child Activity Tracking ──────────────────────────
+model ChildActivity {
+  id          String   @id @default(cuid())
+  childId     String   @map("child_id")
+  activityId  String   @map("activity_id")
+  completedAt DateTime @default(now()) @map("completed_at")
+  rating      Int?     @db.SmallInt // 1-5
+  notes       String?
+
+  // Relations
+  child    Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@index([childId])
+  @@index([activityId])
+  @@map("child_activities")
+}
+
+// ─── Syllabus ─────────────────────────────────────────
+model Syllabus {
+  id      String       @id @default(cuid())
+  board   SyllabusBoard
+  grade   Int          @db.SmallInt // 1-12
+  subject String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  topics SyllabusTopic[]
+
+  @@unique([board, grade, subject])
+  @@index([board])
+  @@index([grade])
+  @@map("syllabi")
+}
+
+enum SyllabusBoard {
+  CBSE
+  ICSE
+  IB
+}
+
+model SyllabusTopic {
+  id                 String @id @default(cuid())
+  syllabusId         String @map("syllabus_id")
+  topicName          String @map("topic_name")
+  subtopics          Json?
+  depthLevel         Int    @default(1) @map("depth_level") @db.SmallInt // 1=basic, 2=moderate, 3=advanced
+  learningObjectives String? @map("learning_objectives")
+  orderIndex         Int    @default(0) @map("order_index")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  syllabus Syllabus @relation(fields: [syllabusId], references: [id], onDelete: Cascade)
+
+  @@index([syllabusId])
+  @@map("syllabus_topics")
+}
+
+// ─── Roadmaps ─────────────────────────────────────────
+model Roadmap {
+  id          String        @id @default(cuid())
+  childId     String        @map("child_id")
+  userId      String        @map("user_id")
+  title       String
+  description String?
+  generatedBy RoadmapSource @default(MANUAL) @map("generated_by")
+  content     Json
+  status      RoadmapStatus @default(ACTIVE)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  child Child @relation(fields: [childId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([childId])
+  @@index([userId])
+  @@map("roadmaps")
+}
+
+enum RoadmapSource {
+  MANUAL
+  AI
+}
+
+enum RoadmapStatus {
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+// ─── Subscriptions ────────────────────────────────────
+model Subscription {
+  id              String           @id @default(cuid())
+  userId          String           @unique @map("user_id")
+  plan            SubscriptionTier @default(FREE)
+  status          SubStatus        @default(ACTIVE)
+  startedAt       DateTime         @default(now()) @map("started_at")
+  expiresAt       DateTime?        @map("expires_at")
+  paymentProvider String?          @map("payment_provider")
+  paymentId       String?          @map("payment_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@map("subscriptions")
+}
+
+enum SubStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  EXPIRED
+}
+
+// ─── Feature Flags ────────────────────────────────────
+model FeatureFlag {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String?
+  isEnabled   Boolean @default(false) @map("is_enabled")
+  rules       Json?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("feature_flags")
+}
+
+// ─── Audit Logs ───────────────────────────────────────
+model AuditLog {
+  id         String  @id @default(cuid())
+  userId     String? @map("user_id")
+  action     String
+  entityType String  @map("entity_type")
+  entityId   String? @map("entity_id")
+  metadata   Json?
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+  @@index([entityType])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

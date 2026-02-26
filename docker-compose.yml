@@ -1,0 +1,81 @@
+# GrowRight — Docker Compose (dev) | Sourojit D
+version: "3.9"
+
+services:
+  # ─── PostgreSQL ──────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: growright-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: growright
+      POSTGRES_USER: growright
+      POSTGRES_PASSWORD: growright_secret
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U growright"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Redis ───────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: growright-redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Backend API ─────────────────────────────────────
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: growright-server
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://growright:growright_secret@postgres:5432/growright?schema=public
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./server/src:/app/src
+    command: npm run dev
+
+  # ─── Frontend ────────────────────────────────────────
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: growright-client
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: http://localhost:4000/api/v1
+    depends_on:
+      - server
+    volumes:
+      - ./client/src:/app/src
+
+volumes:
+  pgdata:
+    driver: local
+  redisdata:
+    driver: local

@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Environment (secrets)
+.env
+.env.local
+.env.production
+.env.staging
+
+# Logs
+*.log
+*.pid
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# TypeScript
+*.tsbuildinfo
+
+# Prisma
+.prisma/
+server/prisma/*.db
+server/prisma/migrations/
+
+# Vite
+client/.vite/
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# Claude Code
+.claude/
