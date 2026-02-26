@@ -83,6 +83,7 @@ model Child {
   user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   childMilestones  ChildMilestone[]
   childActivities  ChildActivity[]
+  childToys        ChildToy[]
   roadmaps         Roadmap[]
 
   @@index([userId])
@@ -201,6 +202,48 @@ model ChildActivity {
   @@index([childId])
   @@index([activityId])
   @@map("child_activities")
+}
+
+// ─── Toys (Reference Data) ───────────────────────────
+model Toy {
+  id                  String            @id @default(cuid())
+  category            MilestoneCategory
+  title               String
+  description         String
+  minAgeMonths        Int               @map("min_age_months")
+  maxAgeMonths        Int               @map("max_age_months")
+  suggestedActivities String[]          @default([]) @map("suggested_activities")
+  materials           String[]          @default([])
+  purchaseUrl         String?           @map("purchase_url")
+  imageUrl            String?           @map("image_url")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  childToys ChildToy[]
+
+  @@index([category])
+  @@index([minAgeMonths, maxAgeMonths])
+  @@map("toys")
+}
+
+// ─── Child Toy Bookmarks ─────────────────────────────
+model ChildToy {
+  id      String   @id @default(cuid())
+  childId String   @map("child_id")
+  toyId   String   @map("toy_id")
+  savedAt DateTime @default(now()) @map("saved_at")
+  notes   String?
+
+  // Relations
+  child Child @relation(fields: [childId], references: [id], onDelete: Cascade)
+  toy   Toy   @relation(fields: [toyId], references: [id], onDelete: Cascade)
+
+  @@unique([childId, toyId])
+  @@index([childId])
+  @@index([toyId])
+  @@map("child_toys")
 }
 
 // ─── Syllabus ─────────────────────────────────────────

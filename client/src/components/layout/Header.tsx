@@ -9,6 +9,7 @@ const titles: Record<string, string> = {
   '/children/add': 'Add Child',
   '/milestones': 'Milestones',
   '/activities': 'Activities',
+  '/toys': 'Toy Recommendations',
   '/syllabus': 'Syllabus Comparator',
   '/roadmap': 'Development Roadmap',
   '/settings': 'Settings',

@@ -6,6 +6,7 @@ import {
   Baby,
   Target,
   Sparkles,
+  Gift,
   BookOpen,
   Route,
   Settings,
@@ -24,6 +25,7 @@ const navItems = [
   { to: '/children', icon: Baby, label: 'Children' },
   { to: '/milestones', icon: Target, label: 'Milestones' },
   { to: '/activities', icon: Sparkles, label: 'Activities' },
+  { to: '/toys', icon: Gift, label: 'Toys' },
   { to: '/syllabus', icon: BookOpen, label: 'Syllabus' },
   { to: '/roadmap', icon: Route, label: 'Roadmap' },
 ];

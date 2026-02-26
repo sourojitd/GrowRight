@@ -3,6 +3,7 @@ import { PrismaClient, MilestoneCategory, ImportanceLevel, SyllabusBoard } from 
 import bcrypt from 'bcryptjs';
 import { milestones } from './data/milestones';
 import { activities } from './data/activities';
+import { toys } from './data/toys';
 import { cbseSyllabus } from './data/syllabus/cbse';
 import { icseSyllabus } from './data/syllabus/icse';
 import { ibSyllabus } from './data/syllabus/ib';
@@ -108,6 +109,39 @@ async function main() {
   }
   console.log(`  ✓ Seeded ${activityCount} activities`);
 
+  // ─── Toys (from data file) ─────────────────────────────
+  console.log(`\n  Seeding ${toys.length} toys...`);
+  let toyCount = 0;
+  for (const t of toys) {
+    const id = `toy-${t.category}-${t.minAgeMonths}-${t.title.slice(0, 30).replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`;
+    await prisma.toy.upsert({
+      where: { id },
+      update: {
+        category: t.category as MilestoneCategory,
+        title: t.title,
+        description: t.description,
+        minAgeMonths: t.minAgeMonths,
+        maxAgeMonths: t.maxAgeMonths,
+        suggestedActivities: t.suggestedActivities,
+        materials: t.materials,
+        purchaseUrl: t.purchaseUrl || null,
+      },
+      create: {
+        id,
+        category: t.category as MilestoneCategory,
+        title: t.title,
+        description: t.description,
+        minAgeMonths: t.minAgeMonths,
+        maxAgeMonths: t.maxAgeMonths,
+        suggestedActivities: t.suggestedActivities,
+        materials: t.materials,
+        purchaseUrl: t.purchaseUrl || null,
+      },
+    });
+    toyCount++;
+  }
+  console.log(`  ✓ Seeded ${toyCount} toys`);
+
   // ─── Syllabus Data (CBSE + ICSE + IB) ─────────────────
   const allSyllabus = [
     ...cbseSyllabus,
@@ -185,6 +219,7 @@ async function main() {
   console.log('  Seeding complete!');
   console.log(`  Milestones:  ${milestoneCount}`);
   console.log(`  Activities:  ${activityCount}`);
+  console.log(`  Toys:        ${toyCount}`);
   console.log(`  Syllabi:     ${syllabusCount} (${topicCount} topics)`);
   console.log(`  Flags:       ${flags.length}`);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');

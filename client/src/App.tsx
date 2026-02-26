@@ -9,6 +9,7 @@ import ChildProfilePage from '@/pages/children/ChildProfilePage';
 import AddChildPage from '@/pages/children/AddChildPage';
 import MilestonesPage from '@/pages/milestones/MilestonesPage';
 import ActivitiesPage from '@/pages/activities/ActivitiesPage';
+import ToysPage from '@/pages/toys/ToysPage';
 import SyllabusPage from '@/pages/syllabus/SyllabusPage';
 import RoadmapPage from '@/pages/roadmap/RoadmapPage';
 import SettingsPage from '@/pages/settings/SettingsPage';
@@ -49,6 +50,7 @@ export default function App() {
         <Route path="children/:childId" element={<ChildProfilePage />} />
         <Route path="milestones" element={<MilestonesPage />} />
         <Route path="activities" element={<ActivitiesPage />} />
+        <Route path="toys" element={<ToysPage />} />
         <Route path="syllabus" element={<SyllabusPage />} />
         <Route path="roadmap" element={<RoadmapPage />} />
         <Route path="settings" element={<SettingsPage />} />

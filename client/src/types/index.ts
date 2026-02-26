@@ -96,6 +96,20 @@ export interface Activity {
   isCompleted?: boolean;
 }
 
+// ─── Toy ─────────────────────────────────────────────
+export interface Toy {
+  id: string;
+  category: MilestoneCategory;
+  title: string;
+  description: string;
+  minAgeMonths: number;
+  maxAgeMonths: number;
+  suggestedActivities: string[];
+  materials: string[];
+  purchaseUrl?: string;
+  isSaved?: boolean;
+}
+
 // ─── Syllabus ─────────────────────────────────────────
 export type SyllabusBoard = 'CBSE' | 'ICSE' | 'IB';
 
