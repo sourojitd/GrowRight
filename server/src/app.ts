@@ -17,6 +17,7 @@ import activitiesRoutes from './modules/activities/activities.routes';
 import toysRoutes from './modules/toys/toys.routes';
 import syllabusRoutes from './modules/syllabus/syllabus.routes';
 import roadmapRoutes from './modules/roadmap/roadmap.routes';
+import vaccinationsRoutes from './modules/vaccinations/vaccinations.routes';
 import adminRoutes from './modules/admin/admin.routes';
 
 const app = express();
@@ -66,6 +67,7 @@ app.use(`${apiPrefix}/activities`, activitiesRoutes);
 app.use(`${apiPrefix}/toys`, toysRoutes);
 app.use(`${apiPrefix}/syllabus`, syllabusRoutes);
 app.use(`${apiPrefix}/roadmaps`, roadmapRoutes);
+app.use(`${apiPrefix}/vaccinations`, vaccinationsRoutes);
 app.use(`${apiPrefix}/admin`, adminRoutes);
 
 // ─── Error Handling ───────────────────────────────────

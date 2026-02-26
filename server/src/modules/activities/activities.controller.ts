@@ -53,6 +53,30 @@ class ActivitiesController {
       next(error);
     }
   }
+
+  async getPastIncompleteCount(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const result = await activitiesService.getPastIncompleteCount(
+        req.params.childId as string,
+        req.user!.userId
+      );
+      res.json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async bulkCompletePast(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const result = await activitiesService.bulkCompletePast(
+        req.params.childId as string,
+        req.user!.userId
+      );
+      res.json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export const activitiesController = new ActivitiesController();

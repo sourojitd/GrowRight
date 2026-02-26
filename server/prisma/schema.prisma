@@ -80,11 +80,12 @@ model Child {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  childMilestones  ChildMilestone[]
-  childActivities  ChildActivity[]
-  childToys        ChildToy[]
-  roadmaps         Roadmap[]
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  childMilestones   ChildMilestone[]
+  childActivities   ChildActivity[]
+  childToys         ChildToy[]
+  childVaccinations ChildVaccination[]
+  roadmaps          Roadmap[]
 
   @@index([userId])
   @@index([dateOfBirth])
@@ -244,6 +245,57 @@ model ChildToy {
   @@index([childId])
   @@index([toyId])
   @@map("child_toys")
+}
+
+// ─── Vaccinations (Reference Data) ───────────────────
+model Vaccination {
+  id          String          @id @default(cuid())
+  name        String                              // e.g., "BCG", "Hepatitis B"
+  doseLabel   String          @map("dose_label")  // e.g., "Birth Dose", "Dose 1", "Booster 1"
+  description String
+  ageWeeks    Int?            @map("age_weeks")    // precise age in weeks (for early doses)
+  ageMonths   Int             @map("age_months")   // approximate age in months
+  ageLabel    String          @map("age_label")    // display: "At Birth", "6 Weeks", "9-12 Months"
+  category    VaccineCategory                      // GOVERNMENT or PRIVATE
+  sortOrder   Int             @default(0) @map("sort_order")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  childVaccinations ChildVaccination[]
+
+  @@index([category])
+  @@index([ageMonths])
+  @@index([sortOrder])
+  @@map("vaccinations")
+}
+
+enum VaccineCategory {
+  GOVERNMENT
+  PRIVATE
+}
+
+// ─── Child Vaccination Tracking ─────────────────────
+model ChildVaccination {
+  id               String    @id @default(cuid())
+  childId          String    @map("child_id")
+  vaccinationId    String    @map("vaccination_id")
+  isAdministered   Boolean   @default(false) @map("is_administered")
+  administeredDate DateTime? @map("administered_date")
+  notes            String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  child       Child       @relation(fields: [childId], references: [id], onDelete: Cascade)
+  vaccination Vaccination @relation(fields: [vaccinationId], references: [id], onDelete: Cascade)
+
+  @@unique([childId, vaccinationId])
+  @@index([childId])
+  @@index([vaccinationId])
+  @@map("child_vaccinations")
 }
 
 // ─── Syllabus ─────────────────────────────────────────

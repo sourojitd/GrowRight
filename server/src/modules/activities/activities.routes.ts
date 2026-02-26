@@ -45,4 +45,20 @@ router.get(
   (req, res, next) => activitiesController.getHistory(req, res, next)
 );
 
+// Protected: count of past activities not yet completed
+router.get(
+  '/child/:childId/past-incomplete',
+  authenticate,
+  validate({ params: z.object({ childId: z.string() }) }),
+  (req, res, next) => activitiesController.getPastIncompleteCount(req, res, next)
+);
+
+// Protected: bulk-complete all past activities
+router.post(
+  '/child/:childId/bulk-complete-past',
+  authenticate,
+  validate({ params: z.object({ childId: z.string() }) }),
+  (req, res, next) => activitiesController.bulkCompletePast(req, res, next)
+);
+
 export default router;

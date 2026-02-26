@@ -1,9 +1,9 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, Target, Sparkles, Route, Trash2, Edit2 } from 'lucide-react';
+import { Calendar, Target, Sparkles, Route, Trash2, Edit2, CheckCheck } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { apiGet } from '@/lib/api';
+import { apiGet, apiPost } from '@/lib/api';
 import { useChildStore } from '@/stores/childStore';
 import { useMilestones } from '@/hooks/useMilestones';
 import Card from '@/components/ui/Card';
@@ -29,6 +29,7 @@ export default function ChildProfilePage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isBulkCompleting, setIsBulkCompleting] = useState(false);
   const [editForm, setEditForm] = useState({
     name: '',
     dateOfBirth: '',
@@ -45,6 +46,12 @@ export default function ChildProfilePage() {
   });
 
   const { progress, summary } = useMilestones(childId);
+
+  const { data: pastIncomplete } = useQuery({
+    queryKey: ['past-incomplete', childId],
+    queryFn: () => apiGet<{ count: number; ageMonths: number }>(`/activities/child/${childId}/past-incomplete`),
+    enabled: !!childId,
+  });
 
   useEffect(() => {
     if (child) {
@@ -97,6 +104,24 @@ export default function ChildProfilePage() {
     }
   };
 
+  const handleBulkComplete = async () => {
+    setIsBulkCompleting(true);
+    try {
+      const result = await apiPost<{ completed: number }>(`/activities/child/${child.id}/bulk-complete-past`);
+      if (result.completed > 0) {
+        toast.success(`Marked ${result.completed} past activities as complete`);
+        await queryClient.invalidateQueries({ queryKey: ['past-incomplete', childId] });
+        await queryClient.invalidateQueries({ queryKey: ['child', childId] });
+      } else {
+        toast.success('All past activities are already complete');
+      }
+    } catch {
+      toast.error('Failed to mark activities');
+    } finally {
+      setIsBulkCompleting(false);
+    }
+  };
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
       {/* Profile Header */}
@@ -135,6 +160,37 @@ export default function ChildProfilePage() {
           </div>
         </div>
       </Card>
+
+      {/* Past Activities Banner */}
+      {pastIncomplete && pastIncomplete.count > 0 && (
+        <AnimatedSection>
+          <Card variant="elevated" className="border border-accent-orange/20 bg-gradient-to-r from-accent-orange/5 to-accent-yellow/5">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              <div className="flex items-center gap-3 flex-1">
+                <div className="w-10 h-10 rounded-xl bg-accent-orange/15 flex items-center justify-center flex-shrink-0">
+                  <CheckCheck className="w-5 h-5 text-accent-orange" />
+                </div>
+                <div>
+                  <p className="text-subhead font-medium text-text-primary">
+                    {pastIncomplete.count} past {pastIncomplete.count === 1 ? 'activity' : 'activities'} not yet marked
+                  </p>
+                  <p className="text-caption text-text-secondary">
+                    Activities for ages below {child.ageFormatted} can be marked as complete
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="gradient"
+                size="sm"
+                isLoading={isBulkCompleting}
+                onClick={handleBulkComplete}
+              >
+                <CheckCheck className="w-4 h-4" /> Mark All Complete
+              </Button>
+            </div>
+          </Card>
+        </AnimatedSection>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">

@@ -112,6 +112,80 @@ class ActivitiesService {
       take: 50,
     });
   }
+
+  /**
+   * Count activities that are fully below the child's current age and not yet completed.
+   * "Fully below" means maxAgeMonths < child's ageMonths (the activity's age window has passed).
+   */
+  async getPastIncompleteCount(childId: string, userId: string) {
+    const child = await prisma.child.findUnique({ where: { id: childId } });
+    if (!child) throw new NotFoundError('Child');
+    if (child.userId !== userId) throw new ForbiddenError();
+
+    const ageMonths = calculateAgeInMonths(child.dateOfBirth);
+
+    // All activities whose age window is fully past
+    const pastActivities = await prisma.activity.findMany({
+      where: { maxAgeMonths: { lt: ageMonths } },
+      select: { id: true },
+    });
+
+    if (pastActivities.length === 0) return { count: 0, ageMonths };
+
+    // Which of those are already completed
+    const completed = await prisma.childActivity.findMany({
+      where: {
+        childId,
+        activityId: { in: pastActivities.map((a) => a.id) },
+      },
+      select: { activityId: true },
+    });
+    const completedIds = new Set(completed.map((c) => c.activityId));
+
+    const incompleteCount = pastActivities.filter((a) => !completedIds.has(a.id)).length;
+    return { count: incompleteCount, ageMonths };
+  }
+
+  /**
+   * Bulk-complete all activities that are fully below the child's current age.
+   * Only creates records for activities not already completed.
+   */
+  async bulkCompletePast(childId: string, userId: string) {
+    const child = await prisma.child.findUnique({ where: { id: childId } });
+    if (!child) throw new NotFoundError('Child');
+    if (child.userId !== userId) throw new ForbiddenError();
+
+    const ageMonths = calculateAgeInMonths(child.dateOfBirth);
+
+    const pastActivities = await prisma.activity.findMany({
+      where: { maxAgeMonths: { lt: ageMonths } },
+      select: { id: true },
+    });
+
+    if (pastActivities.length === 0) return { completed: 0 };
+
+    const alreadyCompleted = await prisma.childActivity.findMany({
+      where: {
+        childId,
+        activityId: { in: pastActivities.map((a) => a.id) },
+      },
+      select: { activityId: true },
+    });
+    const completedIds = new Set(alreadyCompleted.map((c) => c.activityId));
+
+    const toComplete = pastActivities.filter((a) => !completedIds.has(a.id));
+
+    if (toComplete.length === 0) return { completed: 0 };
+
+    await prisma.childActivity.createMany({
+      data: toComplete.map((a) => ({
+        childId,
+        activityId: a.id,
+      })),
+    });
+
+    return { completed: toComplete.length };
+  }
 }
 
 export const activitiesService = new ActivitiesService();

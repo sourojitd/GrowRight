@@ -15,6 +15,7 @@ const titles: Record<string, string> = {
   '/toys': 'Toy Recommendations',
   '/syllabus': 'Syllabus Comparator',
   '/roadmap': 'Development Roadmap',
+  '/vaccinations': 'Vaccination Checklist',
   '/settings': 'Settings',
   '/admin': 'Admin Dashboard',
 };

@@ -1,9 +1,10 @@
 // GrowRight Database Seed — Sourojit D
-import { PrismaClient, MilestoneCategory, ImportanceLevel, SyllabusBoard } from '@prisma/client';
+import { PrismaClient, MilestoneCategory, ImportanceLevel, SyllabusBoard, VaccineCategory } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { milestones } from './data/milestones';
 import { activities } from './data/activities';
 import { toys } from './data/toys';
+import { vaccinations } from './data/vaccinations';
 import { cbseSyllabus } from './data/syllabus/cbse';
 import { icseSyllabus } from './data/syllabus/icse';
 import { ibSyllabus } from './data/syllabus/ib';
@@ -142,6 +143,39 @@ async function main() {
   }
   console.log(`  ✓ Seeded ${toyCount} toys`);
 
+  // ─── Vaccinations (from data file) ─────────────────────
+  console.log(`\n  Seeding ${vaccinations.length} vaccinations...`);
+  let vaccinationCount = 0;
+  for (const v of vaccinations) {
+    const id = `vac-${v.category.toLowerCase()}-${v.sortOrder}-${v.name.slice(0, 20).replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`;
+    await prisma.vaccination.upsert({
+      where: { id },
+      update: {
+        name: v.name,
+        doseLabel: v.doseLabel,
+        description: v.description,
+        ageWeeks: v.ageWeeks,
+        ageMonths: v.ageMonths,
+        ageLabel: v.ageLabel,
+        category: v.category as VaccineCategory,
+        sortOrder: v.sortOrder,
+      },
+      create: {
+        id,
+        name: v.name,
+        doseLabel: v.doseLabel,
+        description: v.description,
+        ageWeeks: v.ageWeeks,
+        ageMonths: v.ageMonths,
+        ageLabel: v.ageLabel,
+        category: v.category as VaccineCategory,
+        sortOrder: v.sortOrder,
+      },
+    });
+    vaccinationCount++;
+  }
+  console.log(`  ✓ Seeded ${vaccinationCount} vaccinations`);
+
   // ─── Syllabus Data (CBSE + ICSE + IB) ─────────────────
   const allSyllabus = [
     ...cbseSyllabus,
@@ -217,11 +251,12 @@ async function main() {
   // ─── Summary ────────────────────────────────────────
   console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log('  Seeding complete!');
-  console.log(`  Milestones:  ${milestoneCount}`);
-  console.log(`  Activities:  ${activityCount}`);
-  console.log(`  Toys:        ${toyCount}`);
-  console.log(`  Syllabi:     ${syllabusCount} (${topicCount} topics)`);
-  console.log(`  Flags:       ${flags.length}`);
+  console.log(`  Milestones:     ${milestoneCount}`);
+  console.log(`  Activities:     ${activityCount}`);
+  console.log(`  Toys:           ${toyCount}`);
+  console.log(`  Vaccinations:   ${vaccinationCount}`);
+  console.log(`  Syllabi:        ${syllabusCount} (${topicCount} topics)`);
+  console.log(`  Flags:          ${flags.length}`);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 }
 

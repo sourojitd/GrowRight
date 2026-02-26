@@ -9,6 +9,7 @@ import {
   Gift,
   BookOpen,
   Route,
+  Syringe,
   Settings,
   Shield,
   LogOut,
@@ -28,6 +29,7 @@ const navItems = [
   { to: '/toys', icon: Gift, label: 'Toys' },
   { to: '/syllabus', icon: BookOpen, label: 'Syllabus' },
   { to: '/roadmap', icon: Route, label: 'Roadmap' },
+  { to: '/vaccinations', icon: Syringe, label: 'Vaccinations' },
 ];
 
 interface SidebarProps {

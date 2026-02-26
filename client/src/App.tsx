@@ -12,6 +12,7 @@ import ActivitiesPage from '@/pages/activities/ActivitiesPage';
 import ToysPage from '@/pages/toys/ToysPage';
 import SyllabusPage from '@/pages/syllabus/SyllabusPage';
 import RoadmapPage from '@/pages/roadmap/RoadmapPage';
+import VaccinationsPage from '@/pages/vaccinations/VaccinationsPage';
 import SettingsPage from '@/pages/settings/SettingsPage';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 
@@ -53,6 +54,7 @@ export default function App() {
         <Route path="toys" element={<ToysPage />} />
         <Route path="syllabus" element={<SyllabusPage />} />
         <Route path="roadmap" element={<RoadmapPage />} />
+        <Route path="vaccinations" element={<VaccinationsPage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
       </Route>
