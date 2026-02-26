@@ -10,7 +10,7 @@ import Badge from '@/components/ui/Badge';
 import AnimatedSection from '@/components/shared/AnimatedSection';
 import { PageSpinner } from '@/components/ui/Spinner';
 import { getDepthLabel, getDepthColor } from '@/lib/utils';
-import type { SyllabusOptions, SyllabusComparison, SyllabusBoard, BoardComparisonSummary } from '@/types';
+import type { SyllabusOptions, SyllabusComparison, SyllabusBoard } from '@/types';
 
 export default function SyllabusPage() {
   const [selectedBoards, setSelectedBoards] = useState<SyllabusBoard[]>(['CBSE', 'ICSE']);
@@ -52,7 +52,7 @@ export default function SyllabusPage() {
   // Auto-select first subject when filters change
   useEffect(() => {
     if (filteredSubjects.length > 0 && !filteredSubjects.includes(selectedSubject)) {
-      setSelectedSubject(filteredSubjects[0]);
+      setSelectedSubject(filteredSubjects[0] ?? '');
     }
   }, [filteredSubjects]);
 
