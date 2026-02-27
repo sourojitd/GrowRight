@@ -105,9 +105,14 @@ class AuthService {
     };
   }
 
-  async logout(userId: string) {
-    // Delete all refresh tokens for the user
-    await prisma.refreshToken.deleteMany({ where: { userId } });
+  async logout(userId: string, refreshToken?: string) {
+    if (refreshToken) {
+      // Delete only the specific session's refresh token
+      await prisma.refreshToken.deleteMany({ where: { userId, token: refreshToken } });
+    } else {
+      // Fallback: delete all refresh tokens for the user
+      await prisma.refreshToken.deleteMany({ where: { userId } });
+    }
     logger.info('User logged out', { userId });
   }
 
@@ -125,6 +130,58 @@ class AuthService {
     }
 
     return sanitizeUser(user as unknown as Record<string, unknown>);
+  }
+
+  async verifyChildInfo(email: string, childName: string, childGender?: string, childDOB?: string) {
+    // Find user by email — use constant-time pattern to avoid user enumeration
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      throw new UnauthorizedError('Verification failed');
+    }
+
+    // Find matching child
+    const children = await prisma.child.findMany({ where: { userId: user.id } });
+
+    const match = children.find((child) => {
+      const nameMatch = child.name.toLowerCase().trim() === childName.toLowerCase().trim();
+      const dobMatch = childDOB
+        ? child.dateOfBirth.toISOString().slice(0, 10) === new Date(childDOB).toISOString().slice(0, 10)
+        : false;
+      const genderMatch = childGender ? child.gender === childGender : true;
+      return nameMatch && dobMatch && genderMatch;
+    });
+
+    if (!match) {
+      throw new UnauthorizedError('Verification failed');
+    }
+
+    return { verified: true };
+  }
+
+  async resetPasswordWithVerification(email: string, childName: string, childDOB: string, newPassword: string) {
+    // Re-verify child info (don't trust client state)
+    await this.verifyChildInfo(email, childName, undefined, childDOB);
+
+    // Hash new password
+    const passwordHash = await bcrypt.hash(newPassword, config.BCRYPT_ROUNDS);
+
+    // Update user password
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      throw new UnauthorizedError('Verification failed');
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash },
+    });
+
+    // Delete all refresh tokens (force re-login everywhere)
+    await prisma.refreshToken.deleteMany({ where: { userId: user.id } });
+
+    logger.info('Password reset via child verification', { userId: user.id });
+
+    return { success: true };
   }
 
   // ─── Private ────────────────────────────────────────

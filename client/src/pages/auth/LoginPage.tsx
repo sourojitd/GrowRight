@@ -83,16 +83,23 @@ export default function LoginPage() {
               error={errors.email}
               autoComplete="email"
             />
-            <Input
-              id="password"
-              label="Password"
-              type="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              error={errors.password}
-              autoComplete="current-password"
-            />
+            <div>
+              <Input
+                id="password"
+                label="Password"
+                type="password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                error={errors.password}
+                autoComplete="current-password"
+              />
+              <div className="mt-1.5 text-right">
+                <Link to="/forgot-password" className="text-caption text-accent-blue hover:opacity-80 transition-opacity">
+                  Forgot password?
+                </Link>
+              </div>
+            </div>
 
             <Button type="submit" variant="gradient" isLoading={isLoading} className="w-full mt-2">
               Sign in

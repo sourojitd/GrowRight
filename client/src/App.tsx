@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import AppLayout from '@/components/layout/AppLayout';
 import LoginPage from '@/pages/auth/LoginPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
+import ForgotPasswordPage from '@/pages/auth/ForgotPasswordPage';
 import DashboardPage from '@/pages/dashboard/DashboardPage';
 import ChildrenPage from '@/pages/children/ChildrenPage';
 import ChildProfilePage from '@/pages/children/ChildProfilePage';
@@ -41,6 +42,7 @@ export default function App() {
       {/* Auth routes */}
       <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
       <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
+      <Route path="/forgot-password" element={<GuestRoute><ForgotPasswordPage /></GuestRoute>} />
 
       {/* Protected routes */}
       <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>

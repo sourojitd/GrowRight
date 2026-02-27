@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Baby, Target, Sparkles, Route, ArrowRight, Plus, TrendingUp } from 'lucide-react';
+import { Baby, Target, Sparkles, ArrowRight, Plus, TrendingUp, BookOpen } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useChildren } from '@/hooks/useChildren';
 import { useMilestones } from '@/hooks/useMilestones';
@@ -32,6 +32,8 @@ export default function DashboardPage() {
     );
   }
 
+  const isEarlyDev = !selectedChild || (selectedChild.ageMonths ?? 0) < 72;
+
   const greeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good morning';
@@ -52,7 +54,7 @@ export default function DashboardPage() {
       </motion.div>
 
       {/* Stats Grid */}
-      <motion.div variants={staggerItem} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <motion.div variants={staggerItem} className={`grid grid-cols-1 sm:grid-cols-2 ${isEarlyDev ? 'lg:grid-cols-4' : 'lg:grid-cols-2'} gap-5`}>
         <Card variant="elevated" className="stat-card-blue flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-blue/20 to-accent-teal/20 flex items-center justify-center">
             <Baby className="w-6 h-6 text-accent-blue" />
@@ -65,29 +67,33 @@ export default function DashboardPage() {
           </div>
         </Card>
 
-        <Card variant="elevated" className="stat-card-green flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-green/20 to-accent-teal/20 flex items-center justify-center">
-            <Target className="w-6 h-6 text-accent-green" />
-          </div>
-          <div>
-            <p className="text-caption text-text-tertiary">Milestones Achieved</p>
-            <p className="text-title text-text-primary">
-              <AnimatedCounter target={summary?.achieved || 0} />
-            </p>
-          </div>
-        </Card>
+        {isEarlyDev && (
+          <>
+            <Card variant="elevated" className="stat-card-green flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-green/20 to-accent-teal/20 flex items-center justify-center">
+                <Target className="w-6 h-6 text-accent-green" />
+              </div>
+              <div>
+                <p className="text-caption text-text-tertiary">Milestones Achieved</p>
+                <p className="text-title text-text-primary">
+                  <AnimatedCounter target={summary?.achieved || 0} />
+                </p>
+              </div>
+            </Card>
 
-        <Card variant="elevated" className="stat-card-orange flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-orange/20 to-accent-red/10 flex items-center justify-center">
-            <TrendingUp className="w-6 h-6 text-accent-orange" />
-          </div>
-          <div>
-            <p className="text-caption text-text-tertiary">In Progress</p>
-            <p className="text-title text-text-primary">
-              <AnimatedCounter target={summary?.inProgress || 0} />
-            </p>
-          </div>
-        </Card>
+            <Card variant="elevated" className="stat-card-orange flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-orange/20 to-accent-red/10 flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-accent-orange" />
+              </div>
+              <div>
+                <p className="text-caption text-text-tertiary">In Progress</p>
+                <p className="text-title text-text-primary">
+                  <AnimatedCounter target={summary?.inProgress || 0} />
+                </p>
+              </div>
+            </Card>
+          </>
+        )}
 
         <Card variant="elevated" className="stat-card-purple flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-purple/20 to-accent-blue/10 flex items-center justify-center">
@@ -100,46 +106,48 @@ export default function DashboardPage() {
         </Card>
       </motion.div>
 
-      {/* Development Progress */}
-      <motion.div variants={staggerItem}>
-        <Card variant="elevated">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-headline text-text-primary">Development Progress</h3>
-            <Link to="/milestones" className="btn-ghost text-subhead flex items-center gap-1">
-              View all <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-          <div className="space-y-5">
-            {progress.map((p) => (
-              <div key={p.category} className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="w-2.5 h-2.5 rounded-full"
-                      style={{ backgroundColor: getCategoryDotColor(p.category) }}
-                    />
-                    <span className="text-subhead font-medium text-text-primary">
-                      {getCategoryLabel(p.category)}
+      {/* Development Progress — only for early development children (0-5 years) */}
+      {isEarlyDev && (
+        <motion.div variants={staggerItem}>
+          <Card variant="elevated">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-headline text-text-primary">Development Progress</h3>
+              <Link to="/milestones" className="btn-ghost text-subhead flex items-center gap-1">
+                View all <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+            <div className="space-y-5">
+              {progress.map((p) => (
+                <div key={p.category} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-2.5 h-2.5 rounded-full"
+                        style={{ backgroundColor: getCategoryDotColor(p.category) }}
+                      />
+                      <span className="text-subhead font-medium text-text-primary">
+                        {getCategoryLabel(p.category)}
+                      </span>
+                    </div>
+                    <span className="text-caption text-text-secondary">
+                      {p.achieved}/{p.total}
                     </span>
                   </div>
-                  <span className="text-caption text-text-secondary">
-                    {p.achieved}/{p.total}
-                  </span>
+                  <Progress value={p.percentage} showLabel />
                 </div>
-                <Progress value={p.percentage} showLabel />
-              </div>
-            ))}
-            {progress.length === 0 && (
-              <p className="text-center text-subhead text-text-secondary py-8">
-                Start tracking milestones to see progress here
-              </p>
-            )}
-          </div>
-        </Card>
-      </motion.div>
+              ))}
+              {progress.length === 0 && (
+                <p className="text-center text-subhead text-text-secondary py-8">
+                  Start tracking milestones to see progress here
+                </p>
+              )}
+            </div>
+          </Card>
+        </motion.div>
+      )}
 
       {/* Quick Actions */}
-      <motion.div variants={staggerItem} className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+      <motion.div variants={staggerItem} className={`grid grid-cols-1 ${isEarlyDev ? 'sm:grid-cols-3' : 'sm:grid-cols-2'} gap-5`}>
         <Link to="/children/add">
           <Card interactive variant="gradient-border" className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-blue/15 to-accent-purple/15 flex items-center justify-center">
@@ -152,26 +160,28 @@ export default function DashboardPage() {
           </Card>
         </Link>
 
-        <Link to="/activities">
-          <Card interactive variant="gradient-border" className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-green/15 to-accent-teal/15 flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-accent-green" />
-            </div>
-            <div>
-              <p className="text-subhead font-medium text-text-primary">Activities</p>
-              <p className="text-caption text-text-tertiary">Age-appropriate fun</p>
-            </div>
-          </Card>
-        </Link>
+        {isEarlyDev && (
+          <Link to="/activities">
+            <Card interactive variant="gradient-border" className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-green/15 to-accent-teal/15 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-accent-green" />
+              </div>
+              <div>
+                <p className="text-subhead font-medium text-text-primary">Activities</p>
+                <p className="text-caption text-text-tertiary">Age-appropriate fun</p>
+              </div>
+            </Card>
+          </Link>
+        )}
 
-        <Link to="/roadmap">
+        <Link to="/syllabus">
           <Card interactive variant="gradient-border" className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-purple/15 to-accent-blue/15 flex items-center justify-center">
-              <Route className="w-5 h-5 text-accent-purple" />
+              <BookOpen className="w-5 h-5 text-accent-purple" />
             </div>
             <div>
-              <p className="text-subhead font-medium text-text-primary">Roadmap</p>
-              <p className="text-caption text-text-tertiary">Development plan</p>
+              <p className="text-subhead font-medium text-text-primary">Syllabus</p>
+              <p className="text-caption text-text-tertiary">Compare curricula</p>
             </div>
           </Card>
         </Link>

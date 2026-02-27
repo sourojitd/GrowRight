@@ -26,7 +26,15 @@ export default function AddChildPage() {
     e.preventDefault();
     const errs: Record<string, string> = {};
     if (!form.name.trim()) errs.name = 'Name is required';
-    if (!form.dateOfBirth) errs.dateOfBirth = 'Date of birth is required';
+    if (!form.dateOfBirth) {
+      errs.dateOfBirth = 'Date of birth is required';
+    } else {
+      const dob = new Date(form.dateOfBirth);
+      const now = new Date();
+      if (dob > now) errs.dateOfBirth = 'Date of birth cannot be in the future';
+      const ageYears = (now.getTime() - dob.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
+      if (ageYears > 18) errs.dateOfBirth = 'Child must be 18 years or younger';
+    }
     if (Object.keys(errs).length > 0) return setErrors(errs);
 
     setIsLoading(true);

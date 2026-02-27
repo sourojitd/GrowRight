@@ -16,6 +16,8 @@ import Modal from '@/components/ui/Modal';
 import AnimatedCounter from '@/components/shared/AnimatedCounter';
 import AnimatedSection from '@/components/shared/AnimatedSection';
 import { PageSpinner } from '@/components/ui/Spinner';
+import { getProfileTheme } from '@/components/children/profileTheme';
+import ProfileBannerDecorations from '@/components/children/ProfileBannerDecorations';
 import { formatDate, getCategoryLabel, getCategoryDotColor } from '@/lib/utils';
 import toast from 'react-hot-toast';
 import type { Child } from '@/types';
@@ -65,6 +67,8 @@ export default function ChildProfilePage() {
     }
   }, [child]);
 
+  const theme = getProfileTheme(child?.gender);
+
   if (isLoading) return <PageSpinner />;
   if (!child) return null;
 
@@ -82,7 +86,15 @@ export default function ChildProfilePage() {
     e.preventDefault();
     const errs: Record<string, string> = {};
     if (!editForm.name.trim()) errs.name = 'Name is required';
-    if (!editForm.dateOfBirth) errs.dateOfBirth = 'Date of birth is required';
+    if (!editForm.dateOfBirth) {
+      errs.dateOfBirth = 'Date of birth is required';
+    } else {
+      const dob = new Date(editForm.dateOfBirth);
+      const now = new Date();
+      if (dob > now) errs.dateOfBirth = 'Date of birth cannot be in the future';
+      const ageYears = (now.getTime() - dob.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
+      if (ageYears > 18) errs.dateOfBirth = 'Child must be 18 years or younger';
+    }
     if (Object.keys(errs).length > 0) return setEditErrors(errs);
 
     setIsEditing(true);
@@ -126,11 +138,13 @@ export default function ChildProfilePage() {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
       {/* Profile Header */}
       <Card variant="elevated" padding="none" className="overflow-hidden">
-        <div className="h-24 sm:h-32 bg-gradient-to-br from-accent-blue/15 via-accent-purple/10 to-accent-teal/15" />
+        <div className={`h-24 sm:h-32 relative overflow-hidden ${theme.bannerGradient}`}>
+          <ProfileBannerDecorations theme={theme.decorations} />
+        </div>
         <div className="px-4 sm:px-8 pb-6 sm:pb-8 -mt-8 sm:-mt-10">
           <div className="flex items-end gap-4 sm:gap-6">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white shadow-card-elevated flex items-center justify-center border-4 border-white flex-shrink-0">
-              <span className="text-display-sm sm:text-display text-gradient">{child.name.charAt(0)}</span>
+            <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl ${theme.avatarBg} shadow-card-elevated flex items-center justify-center border-4 border-white flex-shrink-0`}>
+              <span className="text-display-sm sm:text-display" style={{ background: theme.avatarTextGradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{child.name.charAt(0)}</span>
             </div>
             <div className="flex-1 min-w-0 pb-1">
               <h1 className="text-headline sm:text-display-sm text-text-primary truncate">{child.name}</h1>
@@ -152,7 +166,7 @@ export default function ChildProfilePage() {
               Born {formatDate(child.dateOfBirth)}
             </div>
             {child.gender && (
-              <Badge variant={child.gender === 'MALE' ? 'blue' : 'purple'}>
+              <Badge variant={theme.badgeVariant}>
                 {child.gender === 'MALE' ? 'Boy' : child.gender === 'FEMALE' ? 'Girl' : 'Other'}
               </Badge>
             )}
@@ -194,7 +208,7 @@ export default function ChildProfilePage() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-        <Card variant="elevated" className="stat-card-green flex items-center gap-4">
+        <Card variant="elevated" className={`${theme.statCards[0]} flex items-center gap-4`}>
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-green/20 to-accent-teal/20 flex items-center justify-center">
             <Target className="w-6 h-6 text-accent-green" />
           </div>
@@ -205,7 +219,7 @@ export default function ChildProfilePage() {
             </p>
           </div>
         </Card>
-        <Card variant="elevated" className="stat-card-orange flex items-center gap-4">
+        <Card variant="elevated" className={`${theme.statCards[1]} flex items-center gap-4`}>
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-orange/20 to-accent-red/10 flex items-center justify-center">
             <Sparkles className="w-6 h-6 text-accent-orange" />
           </div>
@@ -216,7 +230,7 @@ export default function ChildProfilePage() {
             </p>
           </div>
         </Card>
-        <Card variant="elevated" className="stat-card-purple flex items-center gap-4">
+        <Card variant="elevated" className={`${theme.statCards[2]} flex items-center gap-4`}>
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-purple/20 to-accent-blue/10 flex items-center justify-center">
             <Route className="w-6 h-6 text-accent-purple" />
           </div>
@@ -250,7 +264,7 @@ export default function ChildProfilePage() {
                     {p.achieved} of {p.total}
                   </span>
                 </div>
-                <Progress value={p.percentage} showLabel />
+                <Progress value={p.percentage} color={theme.progressColor} showLabel />
               </div>
             ))}
           </div>

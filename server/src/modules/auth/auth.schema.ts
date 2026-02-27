@@ -21,6 +21,32 @@ export const refreshTokenSchema = z.object({
   refreshToken: z.string().min(1, 'Refresh token is required'),
 });
 
+export const logoutSchema = z.object({
+  refreshToken: z.string().optional(),
+});
+
+export const verifyChildInfoSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  childName: z.string().min(1, 'Child name is required'),
+  childGender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional(),
+  childDateOfBirth: z.string().refine((val) => !isNaN(Date.parse(val)), 'Invalid date'),
+});
+
+export const resetPasswordWithVerificationSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  childName: z.string().min(1, 'Child name is required'),
+  childDateOfBirth: z.string().refine((val) => !isNaN(Date.parse(val)), 'Invalid date'),
+  newPassword: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number')
+    .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character'),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RefreshTokenInput = z.infer<typeof refreshTokenSchema>;
+export type VerifyChildInfoInput = z.infer<typeof verifyChildInfoSchema>;
+export type ResetPasswordWithVerificationInput = z.infer<typeof resetPasswordWithVerificationSchema>;

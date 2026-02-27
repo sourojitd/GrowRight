@@ -21,15 +21,18 @@ import { useAuthStore } from '@/stores/authStore';
 import { useChildren } from '@/hooks/useChildren';
 import { cn } from '@/lib/utils';
 
-const navItems = [
-  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/children', icon: Baby, label: 'Children' },
-  { to: '/milestones', icon: Target, label: 'Milestones' },
-  { to: '/activities', icon: Sparkles, label: 'Activities' },
-  { to: '/toys', icon: Gift, label: 'Toys' },
-  { to: '/syllabus', icon: BookOpen, label: 'Syllabus' },
-  { to: '/roadmap', icon: Route, label: 'Roadmap' },
-  { to: '/vaccinations', icon: Syringe, label: 'Vaccinations' },
+// Early development features are for children 0-5 years (0-72 months)
+const EARLY_DEV_MAX_MONTHS = 72;
+
+const allNavItems = [
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', earlyDevOnly: false },
+  { to: '/children', icon: Baby, label: 'Children', earlyDevOnly: false },
+  { to: '/milestones', icon: Target, label: 'Milestones', earlyDevOnly: true },
+  { to: '/activities', icon: Sparkles, label: 'Activities', earlyDevOnly: true },
+  { to: '/toys', icon: Gift, label: 'Toys', earlyDevOnly: true },
+  { to: '/syllabus', icon: BookOpen, label: 'Syllabus', earlyDevOnly: false },
+  { to: '/roadmap', icon: Route, label: 'Roadmap', earlyDevOnly: true },
+  { to: '/vaccinations', icon: Syringe, label: 'Vaccinations', earlyDevOnly: true },
 ];
 
 interface SidebarProps {
@@ -42,6 +45,9 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const logout = useAuthStore((s) => s.logout);
   const navigate = useNavigate();
   const { children, selectedChild, selectChild } = useChildren();
+
+  const isEarlyDev = !selectedChild || (selectedChild.ageMonths ?? 0) < EARLY_DEV_MAX_MONTHS;
+  const navItems = allNavItems.filter((item) => !item.earlyDevOnly || isEarlyDev);
 
   const handleLogout = async () => {
     await logout();

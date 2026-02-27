@@ -3,7 +3,14 @@ import { authController } from './auth.controller';
 import { authenticate } from '../../middleware/auth';
 import { validate } from '../../middleware/validate';
 import { authLimiter } from '../../middleware/rateLimiter';
-import { registerSchema, loginSchema, refreshTokenSchema } from './auth.schema';
+import {
+  registerSchema,
+  loginSchema,
+  refreshTokenSchema,
+  logoutSchema,
+  verifyChildInfoSchema,
+  resetPasswordWithVerificationSchema,
+} from './auth.schema';
 
 const router = Router();
 
@@ -29,8 +36,23 @@ router.post(
 );
 
 router.post(
+  '/verify-child-info',
+  authLimiter,
+  validate({ body: verifyChildInfoSchema }),
+  (req, res, next) => authController.verifyChildInfo(req, res, next)
+);
+
+router.post(
+  '/reset-password-verified',
+  authLimiter,
+  validate({ body: resetPasswordWithVerificationSchema }),
+  (req, res, next) => authController.resetPasswordWithVerification(req, res, next)
+);
+
+router.post(
   '/logout',
   authenticate,
+  validate({ body: logoutSchema }),
   (req, res, next) => authController.logout(req, res, next)
 );
 

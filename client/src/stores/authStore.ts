@@ -54,7 +54,8 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   logout: async () => {
     try {
-      await api.post('/auth/logout');
+      const refreshToken = localStorage.getItem('refreshToken');
+      await api.post('/auth/logout', { refreshToken });
     } catch {
       // Ignore logout API errors
     } finally {
