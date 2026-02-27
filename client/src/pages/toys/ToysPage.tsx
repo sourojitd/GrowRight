@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Gift, Package, Heart, Sparkles, ExternalLink } from 'lucide-react';
+import ThoughtBubble from '@/components/toys/ThoughtBubble';
+import { getToyImageUrl } from '@/components/toys/toyImages';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiGet, apiPost, apiDelete } from '@/lib/api';
 import { useChildren } from '@/hooks/useChildren';
@@ -20,6 +22,7 @@ export default function ToysPage() {
   const { selectedChild } = useChildren();
   const queryClient = useQueryClient();
   const [activeCategory, setActiveCategory] = useState<MilestoneCategory | 'ALL'>('ALL');
+  const [hoveredToyId, setHoveredToyId] = useState<string | null>(null);
 
   const { data: toys = [], isLoading } = useQuery({
     queryKey: ['toys', 'child', selectedChild?.id],
@@ -126,7 +129,18 @@ export default function ToysPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.04, type: 'spring', stiffness: 200, damping: 20 }}
+              onMouseEnter={() => setHoveredToyId(toy.id)}
+              onMouseLeave={() => setHoveredToyId(null)}
+              className="relative"
             >
+              <AnimatePresence>
+                {hoveredToyId === toy.id && (
+                  <ThoughtBubble
+                    imageUrl={getToyImageUrl(toy.title, toy.category)}
+                    alt={toy.title}
+                  />
+                )}
+              </AnimatePresence>
               <Card
                 variant="gradient-border"
                 className={cn('relative', isSaved && 'bg-accent-red/5')}

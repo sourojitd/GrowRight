@@ -59,26 +59,26 @@ function ChildSelector({ children: childList, selectedChild, onSelect }: ChildSe
   }, [isOpen]);
 
   return (
-    <div className="px-4 py-3 border-b border-border-light" ref={ref}>
+    <div className="px-3 py-2 border-b border-border-light flex-shrink-0" ref={ref}>
       <button
         type="button"
         onClick={() => setIsOpen((v) => !v)}
         className={cn(
-          'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200',
+          'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl transition-all duration-200',
           'bg-surface-secondary border cursor-pointer',
           'hover:border-border-DEFAULT focus:outline-none focus:ring-2 focus:ring-accent-blue/30',
           isOpen ? 'border-accent-blue ring-2 ring-accent-blue/30' : 'border-transparent'
         )}
       >
-        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-accent-blue to-accent-teal flex items-center justify-center text-white text-caption font-bold flex-shrink-0">
+        <div className="w-6 h-6 rounded-md bg-gradient-to-br from-accent-blue to-accent-teal flex items-center justify-center text-white text-caption font-bold flex-shrink-0">
           {selectedChild?.name?.charAt(0)?.toUpperCase() || '?'}
         </div>
         <div className="flex-1 min-w-0 text-left">
-          <p className="text-subhead font-medium text-text-primary truncate">
+          <p className="text-subhead font-medium text-text-primary truncate leading-tight">
             {selectedChild?.name || 'Select child'}
           </p>
           {selectedChild?.ageFormatted && (
-            <p className="text-caption text-text-tertiary truncate">{selectedChild.ageFormatted}</p>
+            <p className="text-caption text-text-tertiary truncate leading-tight">{selectedChild.ageFormatted}</p>
           )}
         </div>
         <motion.div
@@ -115,12 +115,12 @@ function ChildSelector({ children: childList, selectedChild, onSelect }: ChildSe
                       setIsOpen(false);
                     }}
                     className={cn(
-                      'w-full flex items-center gap-3 px-3 py-2.5 transition-colors duration-100',
+                      'w-full flex items-center gap-2.5 px-2.5 py-2 transition-colors duration-100',
                       isSelected ? 'bg-accent-blue/8' : 'hover:bg-surface-secondary/60'
                     )}
                   >
                     <div className={cn(
-                      'w-7 h-7 rounded-lg flex items-center justify-center text-white text-caption font-bold flex-shrink-0',
+                      'w-6 h-6 rounded-md flex items-center justify-center text-white text-caption font-bold flex-shrink-0',
                       isSelected
                         ? 'bg-gradient-to-br from-accent-blue to-accent-purple'
                         : 'bg-gradient-to-br from-accent-blue/60 to-accent-teal/60'
@@ -173,7 +173,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const sidebarContent = (
     <>
       {/* Brand */}
-      <div className="px-6 py-5 border-b border-border-light flex items-center justify-between">
+      <div className="px-5 py-3.5 border-b border-border-light flex items-center justify-between flex-shrink-0">
         <div>
           <h1 className="text-title font-bold tracking-tight">
             <span className="text-gradient">Grow</span><span className="text-gradient-blue">Right</span>
@@ -198,7 +198,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       )}
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 min-h-0 px-3 py-2 space-y-0.5 overflow-y-auto">
         {navItems.map((item) => (
           <NavLink
             key={item.to}
@@ -206,7 +206,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             onClick={onClose}
             className={({ isActive }) =>
               cn(
-                'relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-subhead font-medium transition-all duration-200 ease-out',
+                'relative flex items-center gap-3 px-3 py-[9px] rounded-xl text-subhead font-medium transition-all duration-200 ease-out',
                 isActive
                   ? 'bg-accent-blue/10 text-accent-blue'
                   : 'text-text-secondary hover:bg-surface-secondary hover:text-text-primary'
@@ -235,13 +235,13 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
         {isAdmin && (
           <>
-            <div className="my-3 border-t border-border-light" />
+            <div className="my-2 border-t border-border-light" />
             <NavLink
               to="/admin"
               onClick={onClose}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-xl text-subhead font-medium transition-all duration-150',
+                  'flex items-center gap-3 px-3 py-[9px] rounded-xl text-subhead font-medium transition-all duration-150',
                   isActive
                     ? 'bg-accent-purple/10 text-accent-purple'
                     : 'text-text-secondary hover:bg-surface-secondary hover:text-text-primary'
@@ -256,13 +256,13 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       </nav>
 
       {/* Bottom section */}
-      <div className="border-t border-border-light px-3 py-3 space-y-1">
+      <div className="border-t border-border-light px-3 py-2 space-y-0.5 flex-shrink-0">
         <NavLink
           to="/settings"
           onClick={onClose}
           className={({ isActive }) =>
             cn(
-              'flex items-center gap-3 px-3 py-2.5 rounded-xl text-subhead font-medium transition-all duration-150',
+              'flex items-center gap-3 px-3 py-[9px] rounded-xl text-subhead font-medium transition-all duration-150',
               isActive
                 ? 'bg-surface-tertiary text-text-primary'
                 : 'text-text-secondary hover:bg-surface-secondary'
@@ -275,20 +275,20 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-subhead font-medium text-text-secondary hover:bg-accent-red/5 hover:text-accent-red transition-all duration-150"
+          className="w-full flex items-center gap-3 px-3 py-[9px] rounded-xl text-subhead font-medium text-text-secondary hover:bg-accent-red/5 hover:text-accent-red transition-all duration-150"
         >
           <LogOut className="w-5 h-5" strokeWidth={1.5} />
           <span>Log out</span>
         </button>
 
         {/* User info */}
-        <div className="flex items-center gap-3 px-3 py-2 mt-1">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent-blue to-accent-purple flex items-center justify-center text-white text-caption font-bold">
+        <div className="flex items-center gap-2.5 px-3 py-1.5">
+          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-accent-blue to-accent-purple flex items-center justify-center text-white text-caption font-bold">
             {user?.name?.charAt(0)?.toUpperCase() || '?'}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-caption font-medium text-text-primary truncate">{user?.name}</p>
-            <p className="text-caption text-text-tertiary truncate">{user?.subscriptionTier}</p>
+            <p className="text-caption font-medium text-text-primary truncate leading-tight">{user?.name}</p>
+            <p className="text-caption text-text-tertiary truncate leading-tight">{user?.subscriptionTier}</p>
           </div>
         </div>
       </div>
