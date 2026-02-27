@@ -30,12 +30,12 @@ const EARLY_DEV_MAX_MONTHS = 72;
 const allNavItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', earlyDevOnly: false },
   { to: '/children', icon: Baby, label: 'Children', earlyDevOnly: false },
+  { to: '/vaccinations', icon: Syringe, label: 'Vaccinations', earlyDevOnly: true },
   { to: '/milestones', icon: Target, label: 'Milestones', earlyDevOnly: true },
   { to: '/activities', icon: Sparkles, label: 'Activities', earlyDevOnly: true },
   { to: '/toys', icon: Gift, label: 'Toys', earlyDevOnly: true },
   { to: '/syllabus', icon: BookOpen, label: 'Syllabus', earlyDevOnly: false },
   { to: '/roadmap', icon: Route, label: 'Roadmap', earlyDevOnly: true },
-  { to: '/vaccinations', icon: Syringe, label: 'Vaccinations', earlyDevOnly: true },
 ];
 
 // ─── Child Selector Dropdown ─────────────────────────
