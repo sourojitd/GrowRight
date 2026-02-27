@@ -73,9 +73,13 @@ export default function Header({ onMenuClick }: HeaderProps) {
           </div>
 
           <div className="flex items-center gap-3 pl-2 sm:pl-4 border-l border-border-light">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-accent-blue to-accent-purple flex items-center justify-center text-white text-caption sm:text-subhead font-bold">
+            <motion.div
+              whileHover={{ rotate: 360, scale: 1.1 }}
+              transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-accent-blue to-accent-purple flex items-center justify-center text-white text-caption sm:text-subhead font-bold cursor-pointer"
+            >
               {user?.name?.charAt(0)?.toUpperCase() || '?'}
-            </div>
+            </motion.div>
             <div className="hidden sm:block">
               <p className="text-subhead font-medium text-text-primary">{user?.name}</p>
               <p className="text-caption text-text-tertiary">{user?.email}</p>

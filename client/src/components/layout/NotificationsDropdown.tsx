@@ -60,9 +60,14 @@ export default function NotificationsDropdown({ isOpen, onClose }: Notifications
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -8, scale: 0.96 }}
           transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-          className="absolute right-0 top-full mt-2 w-80 sm:w-96 glass-subtle rounded-2xl shadow-modal border border-white/20 overflow-hidden z-50"
+          className="absolute right-0 top-full mt-2 w-80 sm:w-96 rounded-2xl shadow-modal border border-white/20 overflow-hidden z-50"
+          style={{
+            background: 'rgba(255,255,255,0.95)',
+            backdropFilter: 'blur(40px) saturate(200%)',
+            WebkitBackdropFilter: 'blur(40px) saturate(200%)',
+          }}
         >
-          <div className="px-5 py-4 border-b border-white/10">
+          <div className="px-5 py-4 border-b border-border-light">
             <h3 className="text-headline text-text-primary">Recent Activity</h3>
             {selectedChild && (
               <p className="text-caption text-text-tertiary mt-0.5">{selectedChild.name}'s updates</p>

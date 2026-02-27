@@ -174,12 +174,29 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     <>
       {/* Brand */}
       <div className="px-5 py-3.5 border-b border-border-light flex items-center justify-between flex-shrink-0">
-        <div>
-          <h1 className="text-title font-bold tracking-tight">
-            <span className="text-gradient">Grow</span><span className="text-gradient-blue">Right</span>
+        <motion.div whileHover="hover" className="cursor-pointer">
+          <h1 className="text-title font-bold tracking-tight flex">
+            {'Grow'.split('').map((ch, i) => (
+              <motion.span
+                key={`g${i}`}
+                className="text-gradient inline-block"
+                variants={{ hover: { y: [0, -4, 0], transition: { delay: i * 0.04, duration: 0.3 } } }}
+              >
+                {ch}
+              </motion.span>
+            ))}
+            {'Right'.split('').map((ch, i) => (
+              <motion.span
+                key={`r${i}`}
+                className="text-gradient-blue inline-block"
+                variants={{ hover: { y: [0, -4, 0], transition: { delay: (i + 4) * 0.04, duration: 0.3 } } }}
+              >
+                {ch}
+              </motion.span>
+            ))}
           </h1>
           <p className="text-caption text-text-tertiary mt-0.5">Child Development Tracker</p>
-        </div>
+        </motion.div>
         <button
           onClick={onClose}
           className="lg:hidden p-1.5 rounded-lg hover:bg-surface-secondary transition-colors"
@@ -283,9 +300,13 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
         {/* User info */}
         <div className="flex items-center gap-2.5 px-3 py-1.5">
-          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-accent-blue to-accent-purple flex items-center justify-center text-white text-caption font-bold">
+          <motion.div
+            whileHover={{ rotate: 360, scale: 1.15 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+            className="w-7 h-7 rounded-full bg-gradient-to-br from-accent-blue to-accent-purple flex items-center justify-center text-white text-caption font-bold cursor-pointer"
+          >
             {user?.name?.charAt(0)?.toUpperCase() || '?'}
-          </div>
+          </motion.div>
           <div className="flex-1 min-w-0">
             <p className="text-caption font-medium text-text-primary truncate leading-tight">{user?.name}</p>
             <p className="text-caption text-text-tertiary truncate leading-tight">{user?.subscriptionTier}</p>
