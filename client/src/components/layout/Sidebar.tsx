@@ -1,4 +1,5 @@
 // GrowRight Sidebar — Sourojit D
+import { useState, useRef, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -14,12 +15,14 @@ import {
   Shield,
   LogOut,
   ChevronDown,
+  Check,
   X,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthStore } from '@/stores/authStore';
 import { useChildren } from '@/hooks/useChildren';
 import { cn } from '@/lib/utils';
+import type { Child } from '@/types';
 
 // Early development features are for children 0-5 years (0-72 months)
 const EARLY_DEV_MAX_MONTHS = 72;
@@ -35,6 +38,119 @@ const allNavItems = [
   { to: '/vaccinations', icon: Syringe, label: 'Vaccinations', earlyDevOnly: true },
 ];
 
+// ─── Child Selector Dropdown ─────────────────────────
+interface ChildSelectorProps {
+  children: Child[];
+  selectedChild: Child | null;
+  onSelect: (child: Child) => void;
+}
+
+function ChildSelector({ children: childList, selectedChild, onSelect }: ChildSelectorProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setIsOpen(false);
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [isOpen]);
+
+  return (
+    <div className="px-4 py-3 border-b border-border-light" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setIsOpen((v) => !v)}
+        className={cn(
+          'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200',
+          'bg-surface-secondary border cursor-pointer',
+          'hover:border-border-DEFAULT focus:outline-none focus:ring-2 focus:ring-accent-blue/30',
+          isOpen ? 'border-accent-blue ring-2 ring-accent-blue/30' : 'border-transparent'
+        )}
+      >
+        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-accent-blue to-accent-teal flex items-center justify-center text-white text-caption font-bold flex-shrink-0">
+          {selectedChild?.name?.charAt(0)?.toUpperCase() || '?'}
+        </div>
+        <div className="flex-1 min-w-0 text-left">
+          <p className="text-subhead font-medium text-text-primary truncate">
+            {selectedChild?.name || 'Select child'}
+          </p>
+          {selectedChild?.ageFormatted && (
+            <p className="text-caption text-text-tertiary truncate">{selectedChild.ageFormatted}</p>
+          )}
+        </div>
+        <motion.div
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.2 }}
+          className="flex-shrink-0"
+        >
+          <ChevronDown className="w-4 h-4 text-text-tertiary" />
+        </motion.div>
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -4, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -4, scale: 0.97 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+            className="mt-1.5 rounded-xl overflow-hidden shadow-float border border-white/30 bg-white/80 backdrop-blur-xl"
+            style={{
+              WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+              backdropFilter: 'blur(24px) saturate(180%)',
+            }}
+          >
+            <div className="py-1 max-h-52 overflow-y-auto">
+              {childList.map((child) => {
+                const isSelected = child.id === selectedChild?.id;
+                return (
+                  <button
+                    key={child.id}
+                    type="button"
+                    onClick={() => {
+                      onSelect(child);
+                      setIsOpen(false);
+                    }}
+                    className={cn(
+                      'w-full flex items-center gap-3 px-3 py-2.5 transition-colors duration-100',
+                      isSelected ? 'bg-accent-blue/8' : 'hover:bg-surface-secondary/60'
+                    )}
+                  >
+                    <div className={cn(
+                      'w-7 h-7 rounded-lg flex items-center justify-center text-white text-caption font-bold flex-shrink-0',
+                      isSelected
+                        ? 'bg-gradient-to-br from-accent-blue to-accent-purple'
+                        : 'bg-gradient-to-br from-accent-blue/60 to-accent-teal/60'
+                    )}>
+                      {child.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0 text-left">
+                      <p className={cn(
+                        'text-subhead truncate',
+                        isSelected ? 'text-accent-blue font-medium' : 'text-text-primary'
+                      )}>
+                        {child.name}
+                      </p>
+                      <p className="text-caption text-text-tertiary truncate">{child.ageFormatted}</p>
+                    </div>
+                    {isSelected && (
+                      <Check className="w-4 h-4 text-accent-blue flex-shrink-0" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ─── Sidebar ─────────────────────────────────────────
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
@@ -74,25 +190,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
       {/* Child Selector */}
       {children.length > 0 && (
-        <div className="px-4 py-3 border-b border-border-light">
-          <div className="relative">
-            <select
-              value={selectedChild?.id || ''}
-              onChange={(e) => {
-                const child = children.find((c) => c.id === e.target.value);
-                if (child) selectChild(child);
-              }}
-              className="w-full appearance-none bg-surface-secondary rounded-xl px-3 py-2.5 pr-8 text-subhead font-medium text-text-primary cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent-blue/30"
-            >
-              {children.map((child) => (
-                <option key={child.id} value={child.id}>
-                  {child.name} — {child.ageFormatted}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary pointer-events-none" />
-          </div>
-        </div>
+        <ChildSelector
+          children={children}
+          selectedChild={selectedChild}
+          onSelect={selectChild}
+        />
       )}
 
       {/* Navigation */}
