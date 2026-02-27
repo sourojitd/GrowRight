@@ -21,22 +21,6 @@ router.get(
   (req, res, next) => activitiesController.getRecommended(req, res, next)
 );
 
-// Protected: log a completed activity
-router.post(
-  '/child/:childId/:activityId',
-  authenticate,
-  validate({
-    params: z.object({ childId: z.string(), activityId: z.string() }),
-    body: z
-      .object({
-        rating: z.number().min(1).max(5).optional(),
-        notes: z.string().max(500).optional(),
-      })
-      .optional(),
-  }),
-  (req, res, next) => activitiesController.logActivity(req, res, next)
-);
-
 // Protected: activity history for a child
 router.get(
   '/child/:childId/history',
@@ -59,6 +43,22 @@ router.post(
   authenticate,
   validate({ params: z.object({ childId: z.string() }) }),
   (req, res, next) => activitiesController.bulkCompletePast(req, res, next)
+);
+
+// Protected: log a completed activity (must be AFTER specific routes to avoid catching them)
+router.post(
+  '/child/:childId/:activityId',
+  authenticate,
+  validate({
+    params: z.object({ childId: z.string(), activityId: z.string() }),
+    body: z
+      .object({
+        rating: z.number().min(1).max(5).optional(),
+        notes: z.string().max(500).optional(),
+      })
+      .optional(),
+  }),
+  (req, res, next) => activitiesController.logActivity(req, res, next)
 );
 
 export default router;
