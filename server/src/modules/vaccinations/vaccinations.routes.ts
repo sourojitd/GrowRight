@@ -21,6 +21,14 @@ router.get(
   (req, res, next) => vaccinationsController.getChildVaccinations(req, res, next)
 );
 
+// Protected: bulk-mark all due vaccinations as administered
+router.post(
+  '/child/:childId/bulk-administer',
+  authenticate,
+  validate({ params: z.object({ childId: z.string() }) }),
+  (req, res, next) => vaccinationsController.bulkAdministerDue(req, res, next)
+);
+
 // Protected: toggle vaccination status
 router.patch(
   '/child/:childId/:vaccinationId',

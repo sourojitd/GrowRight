@@ -64,6 +64,53 @@ class VaccinationsService {
   }
 
   /**
+   * Bulk-mark all vaccinations due up to the child's current age as administered.
+   */
+  async bulkAdministerDue(childId: string, userId: string) {
+    const child = await prisma.child.findUnique({ where: { id: childId } });
+    if (!child) throw new NotFoundError('Child');
+    if (child.userId !== userId) throw new ForbiddenError();
+
+    const ageMonths = calculateAgeInMonths(child.dateOfBirth);
+
+    // All vaccinations that are due (ageMonths <= child's age)
+    const dueVaccinations = await prisma.vaccination.findMany({
+      where: { ageMonths: { lte: ageMonths } },
+      select: { id: true },
+    });
+
+    if (dueVaccinations.length === 0) return { administered: 0 };
+
+    // Already tracked records for this child
+    const alreadyTracked = await prisma.childVaccination.findMany({
+      where: {
+        childId,
+        vaccinationId: { in: dueVaccinations.map((v) => v.id) },
+        isAdministered: true,
+      },
+      select: { vaccinationId: true },
+    });
+    const administeredIds = new Set(alreadyTracked.map((t) => t.vaccinationId));
+
+    const toAdminister = dueVaccinations.filter((v) => !administeredIds.has(v.id));
+
+    if (toAdminister.length === 0) return { administered: 0 };
+
+    const now = new Date();
+
+    // Upsert each — some may have a record with isAdministered=false
+    for (const v of toAdminister) {
+      await prisma.childVaccination.upsert({
+        where: { childId_vaccinationId: { childId, vaccinationId: v.id } },
+        update: { isAdministered: true, administeredDate: now },
+        create: { childId, vaccinationId: v.id, isAdministered: true, administeredDate: now },
+      });
+    }
+
+    return { administered: toAdminister.length };
+  }
+
+  /**
    * Toggle vaccination administered status for a child.
    */
   async toggleVaccination(

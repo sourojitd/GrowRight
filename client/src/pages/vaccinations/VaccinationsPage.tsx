@@ -6,15 +6,17 @@ import {
   ShieldCheck,
   ChevronDown,
   Check,
+  CheckCheck,
   Clock,
   Building2,
   Stethoscope,
   CircleDot,
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiGet, apiPatch } from '@/lib/api';
+import { apiGet, apiPatch, apiPost } from '@/lib/api';
 import { useChildren } from '@/hooks/useChildren';
 import Card from '@/components/ui/Card';
+import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import Progress from '@/components/ui/Progress';
 import EmptyState from '@/components/ui/EmptyState';
@@ -71,7 +73,30 @@ export default function VaccinationsPage() {
   const toggleMutation = useMutation({
     mutationFn: ({ vaccinationId, isAdministered }: { vaccinationId: string; isAdministered: boolean }) =>
       apiPatch(`/vaccinations/child/${selectedChild!.id}/${vaccinationId}`, { isAdministered }),
-    onSuccess: () => {
+    onMutate: async ({ vaccinationId, isAdministered }) => {
+      await queryClient.cancelQueries({ queryKey: ['vaccinations', selectedChild?.id] });
+      const prev = queryClient.getQueryData<VaccinationData>(['vaccinations', selectedChild?.id]);
+      if (prev) {
+        queryClient.setQueryData<VaccinationData>(['vaccinations', selectedChild?.id], {
+          ...prev,
+          vaccinations: prev.vaccinations.map((v) =>
+            v.id === vaccinationId ? { ...v, isAdministered } : v
+          ),
+          summary: {
+            ...prev.summary,
+            administered: prev.summary.administered + (isAdministered ? 1 : -1),
+            pending: prev.summary.pending + (isAdministered ? -1 : 1),
+          },
+        });
+      }
+      return { prev };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.prev) {
+        queryClient.setQueryData(['vaccinations', selectedChild?.id], context.prev);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['vaccinations', selectedChild?.id] });
     },
   });
@@ -108,6 +133,21 @@ export default function VaccinationsPage() {
   const govAdministered = vaccinations.filter((v) => v.category === 'GOVERNMENT' && v.isAdministered).length;
   const pvtAdministered = vaccinations.filter((v) => v.category === 'PRIVATE' && v.isAdministered).length;
   const overallPercent = summary.total > 0 ? Math.round((summary.administered / summary.total) * 100) : 0;
+
+  const dueUnadministered = vaccinations.filter((v) => v.isDue && !v.isAdministered).length;
+
+  const bulkAdministerMutation = useMutation({
+    mutationFn: () => apiPost<{ administered: number }>(`/vaccinations/child/${selectedChild!.id}/bulk-administer`),
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ['vaccinations', selectedChild?.id] });
+      if (result.administered > 0) {
+        toast.success(`Marked ${result.administered} vaccines as administered`);
+      } else {
+        toast.success('All due vaccines are already administered');
+      }
+    },
+    onError: () => toast.error('Failed to bulk-administer'),
+  });
 
   const handleToggle = (vaccinationId: string, current: boolean) => {
     toggleMutation.mutate(
@@ -165,6 +205,35 @@ export default function VaccinationsPage() {
         </div>
         <Progress value={overallPercent} showLabel />
       </Card>
+
+      {/* Bulk Administer Banner */}
+      {dueUnadministered > 0 && (
+        <Card variant="elevated" className="border border-accent-orange/20 bg-gradient-to-r from-accent-orange/5 to-accent-yellow/5">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex items-center gap-3 flex-1">
+              <div className="w-10 h-10 rounded-xl bg-accent-orange/15 flex items-center justify-center flex-shrink-0">
+                <CheckCheck className="w-5 h-5 text-accent-orange" />
+              </div>
+              <div>
+                <p className="text-subhead font-medium text-text-primary">
+                  {dueUnadministered} {dueUnadministered === 1 ? 'vaccine' : 'vaccines'} due but not yet administered
+                </p>
+                <p className="text-caption text-text-secondary">
+                  Mark all vaccines up to {selectedChild.ageFormatted} as administered
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="gradient"
+              size="sm"
+              isLoading={bulkAdministerMutation.isPending}
+              onClick={() => bulkAdministerMutation.mutate()}
+            >
+              <CheckCheck className="w-4 h-4" /> Mark All Given
+            </Button>
+          </div>
+        </Card>
+      )}
 
       {/* Tab Filters */}
       <div className="flex gap-2">
@@ -299,20 +368,19 @@ export default function VaccinationsPage() {
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: idx * 0.05 }}
+                            onClick={() => handleToggle(vaccine.id, vaccine.isAdministered)}
                             className={cn(
-                              'flex items-start gap-3 sm:gap-4 px-4 sm:px-5 py-4',
+                              'flex items-start gap-3 sm:gap-4 px-4 sm:px-5 py-4 cursor-pointer select-none hover:bg-surface-secondary/50 transition-colors',
                               idx !== items.length - 1 && 'border-b border-border-light/50'
                             )}
                           >
-                            {/* Checkbox */}
-                            <button
-                              onClick={() => handleToggle(vaccine.id, vaccine.isAdministered)}
-                              disabled={toggleMutation.isPending}
+                            {/* Checkbox (visual only — row is clickable) */}
+                            <div
                               className={cn(
                                 'mt-0.5 w-6 h-6 rounded-lg border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200',
                                 vaccine.isAdministered
                                   ? 'bg-accent-green border-accent-green text-white'
-                                  : 'border-border hover:border-accent-green/50 hover:bg-accent-green/5'
+                                  : 'border-border group-hover:border-accent-green/50'
                               )}
                             >
                               {vaccine.isAdministered && (
@@ -324,7 +392,7 @@ export default function VaccinationsPage() {
                                   <Check className="w-3.5 h-3.5" strokeWidth={3} />
                                 </motion.div>
                               )}
-                            </button>
+                            </div>
 
                             {/* Info */}
                             <div className="flex-1 min-w-0">

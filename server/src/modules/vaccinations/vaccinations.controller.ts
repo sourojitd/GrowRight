@@ -27,6 +27,18 @@ class VaccinationsController {
     }
   }
 
+  async bulkAdministerDue(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const result = await vaccinationsService.bulkAdministerDue(
+        req.params.childId as string,
+        req.user!.userId
+      );
+      res.json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async toggleVaccination(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const result = await vaccinationsService.toggleVaccination(
