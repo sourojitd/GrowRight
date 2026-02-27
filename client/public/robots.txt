@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+Allow: /login
+Allow: /register
+Disallow: /dashboard
+Disallow: /children
+Disallow: /milestones
+Disallow: /activities
+Disallow: /toys
+Disallow: /syllabus
+Disallow: /roadmap
+Disallow: /vaccinations
+Disallow: /settings
+Disallow: /admin
+Disallow: /forgot-password
+
+Sitemap: https://growright.sourojit.com/sitemap.xml

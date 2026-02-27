@@ -10,6 +10,7 @@ import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import StaggerContainer, { staggerItem } from '@/components/shared/StaggerContainer';
+import SEO from '@/components/shared/SEO';
 import toast from 'react-hot-toast';
 
 export default function SettingsPage() {
@@ -62,6 +63,7 @@ export default function SettingsPage() {
 
   return (
     <StaggerContainer className="max-w-2xl space-y-8">
+      <SEO title="Settings" description="Manage your GrowRight account preferences and settings." path="/settings" />
       <motion.div variants={staggerItem}>
         <h1 className="text-display-sm text-text-primary">Settings</h1>
         <p className="text-body text-text-secondary mt-1">

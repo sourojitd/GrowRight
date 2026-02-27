@@ -11,6 +11,7 @@ import AnimatedSection from '@/components/shared/AnimatedSection';
 import { PageSpinner } from '@/components/ui/Spinner';
 import { getDepthLabel, getDepthColor } from '@/lib/utils';
 import type { SyllabusOptions, SyllabusComparison, SyllabusBoard } from '@/types';
+import SEO from '@/components/shared/SEO';
 
 export default function SyllabusPage() {
   const [selectedBoards, setSelectedBoards] = useState<SyllabusBoard[]>(['CBSE', 'ICSE']);
@@ -72,6 +73,7 @@ export default function SyllabusPage() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+      <SEO title="Syllabus Comparator" description="Compare school curricula across CBSE, ICSE, and IB education boards from Class 1 to 12." path="/syllabus" />
       <div>
         <h1 className="text-display-sm text-text-primary">Syllabus Comparator</h1>
         <p className="text-body text-text-secondary mt-1">

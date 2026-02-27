@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { getApiErrorMessage } from '@/lib/api';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
+import SEO from '@/components/shared/SEO';
 import toast from 'react-hot-toast';
 
 export default function LoginPage() {
@@ -32,6 +33,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-surface-primary flex items-center justify-center px-4 relative overflow-hidden">
+      <SEO title="Sign In" description="Sign in to GrowRight to track your child's development milestones, activities, and vaccinations." path="/login" />
       {/* Floating gradient orbs */}
       <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] gradient-orb bg-accent-blue/20 animate-float" />
       <div className="absolute bottom-[-15%] right-[-5%] w-[400px] h-[400px] gradient-orb bg-accent-purple/20 animate-float-slow" />

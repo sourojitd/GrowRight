@@ -9,6 +9,7 @@ import EmptyState from '@/components/ui/EmptyState';
 import { PageSpinner } from '@/components/ui/Spinner';
 import StaggerContainer, { staggerItem } from '@/components/shared/StaggerContainer';
 import { formatDate } from '@/lib/utils';
+import SEO from '@/components/shared/SEO';
 
 export default function ChildrenPage() {
   const { children, isLoading } = useChildren();
@@ -29,6 +30,7 @@ export default function ChildrenPage() {
 
   return (
     <StaggerContainer className="space-y-8">
+      <SEO title="Children" description="Manage your children's profiles and track their developmental progress." path="/children" />
       <motion.div variants={staggerItem} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-display-sm text-text-primary">Children</h1>

@@ -8,6 +8,7 @@ import AnimatedCounter from '@/components/shared/AnimatedCounter';
 import StaggerContainer, { staggerItem } from '@/components/shared/StaggerContainer';
 import { PageSpinner } from '@/components/ui/Spinner';
 import type { AdminStats } from '@/types';
+import SEO from '@/components/shared/SEO';
 import toast from 'react-hot-toast';
 
 const statCardStyles = [
@@ -66,6 +67,7 @@ export default function AdminDashboard() {
 
   return (
     <StaggerContainer className="space-y-8">
+      <SEO title="Admin Dashboard" description="Platform overview and management tools." path="/admin" />
       <motion.div variants={staggerItem}>
         <h1 className="text-display-sm text-text-primary">Admin Dashboard</h1>
         <p className="text-body text-text-secondary mt-1">Platform overview and management</p>

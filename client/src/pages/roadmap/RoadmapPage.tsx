@@ -11,6 +11,7 @@ import EmptyState from '@/components/ui/EmptyState';
 import { PageSpinner } from '@/components/ui/Spinner';
 import { cn, getCategoryColor, formatDate } from '@/lib/utils';
 import type { Roadmap, RoadmapContent, MilestoneCategory } from '@/types';
+import SEO from '@/components/shared/SEO';
 import toast from 'react-hot-toast';
 
 export default function RoadmapPage() {
@@ -52,6 +53,7 @@ export default function RoadmapPage() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+      <SEO title="Roadmaps" description="Get personalised development roadmaps to guide your child through each phase of their early years." path="/roadmap" />
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-display-sm text-text-primary">Development Roadmap</h1>

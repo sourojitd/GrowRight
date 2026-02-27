@@ -15,6 +15,7 @@ import Progress from '@/components/ui/Progress';
 import Modal from '@/components/ui/Modal';
 import AnimatedCounter from '@/components/shared/AnimatedCounter';
 import AnimatedSection from '@/components/shared/AnimatedSection';
+import SEO from '@/components/shared/SEO';
 import { PageSpinner } from '@/components/ui/Spinner';
 import { getProfileTheme } from '@/components/children/profileTheme';
 import ProfileBannerDecorations from '@/components/children/ProfileBannerDecorations';
@@ -136,6 +137,7 @@ export default function ChildProfilePage() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+      <SEO title={`${child?.name ?? 'Child'}'s Profile`} description="View your child's developmental milestones, activities, and growth progress." />
       {/* Profile Header */}
       <Card variant="elevated" padding="none" className="overflow-hidden">
         <div className={`h-24 sm:h-32 relative overflow-hidden ${theme.bannerGradient}`}>

@@ -7,6 +7,7 @@ import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
 import Button from '@/components/ui/Button';
 import { getApiErrorMessage } from '@/lib/api';
+import SEO from '@/components/shared/SEO';
 import toast from 'react-hot-toast';
 
 export default function AddChildPage() {
@@ -61,6 +62,7 @@ export default function AddChildPage() {
       transition={{ type: 'spring', stiffness: 200, damping: 20 }}
       className="max-w-xl mx-auto"
     >
+      <SEO title="Add Child" description="Add a new child profile to start tracking their developmental milestones." path="/children/add" />
       <h1 className="text-display-sm text-text-primary mb-2">Add Child</h1>
       <p className="text-body text-text-secondary mb-8">
         Create a profile for your child to start tracking their development.

@@ -12,6 +12,7 @@ import AnimatedCounter from '@/components/shared/AnimatedCounter';
 import StaggerContainer, { staggerItem } from '@/components/shared/StaggerContainer';
 import { PageSpinner } from '@/components/ui/Spinner';
 import { getCategoryLabel, getCategoryDotColor } from '@/lib/utils';
+import SEO from '@/components/shared/SEO';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -43,6 +44,7 @@ export default function DashboardPage() {
 
   return (
     <StaggerContainer className="space-y-8">
+      <SEO title="Dashboard" description="View your child's development progress, recent milestones, and activity overview." path="/dashboard" />
       {/* Greeting */}
       <motion.div variants={staggerItem}>
         <h1 className="text-display-sm sm:text-display-lg text-text-primary">

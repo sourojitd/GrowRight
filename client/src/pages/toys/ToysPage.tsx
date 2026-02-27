@@ -13,6 +13,7 @@ import { PageSpinner } from '@/components/ui/Spinner';
 import StaggerContainer, { staggerItem } from '@/components/shared/StaggerContainer';
 import { cn, getCategoryColor, getCategoryLabel } from '@/lib/utils';
 import type { Toy, MilestoneCategory } from '@/types';
+import SEO from '@/components/shared/SEO';
 import toast from 'react-hot-toast';
 
 const categories: MilestoneCategory[] = ['MOTOR', 'COGNITIVE', 'SPEECH', 'SOCIAL', 'EMOTIONAL'];
@@ -78,6 +79,7 @@ export default function ToysPage() {
 
   return (
     <StaggerContainer className="space-y-8">
+      <SEO title="Toys" description="Get age-appropriate toy recommendations matched to your child's developmental stage." path="/toys" />
       <motion.div variants={staggerItem}>
         <h1 className="text-display-sm text-text-primary">Toy Recommendations</h1>
         <p className="text-body text-text-secondary mt-1">

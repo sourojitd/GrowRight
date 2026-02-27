@@ -21,6 +21,7 @@ import EmptyState from '@/components/ui/EmptyState';
 import AnimatedCounter from '@/components/shared/AnimatedCounter';
 import { PageSpinner } from '@/components/ui/Spinner';
 import { cn } from '@/lib/utils';
+import SEO from '@/components/shared/SEO';
 import toast from 'react-hot-toast';
 
 type VaccineCategory = 'GOVERNMENT' | 'PRIVATE';
@@ -120,6 +121,7 @@ export default function VaccinationsPage() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+      <SEO title="Vaccinations" description="Track your child's immunisation schedule and vaccination history." path="/vaccinations" />
       {/* Header */}
       <div>
         <h1 className="text-display-sm text-text-primary">

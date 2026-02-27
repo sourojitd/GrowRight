@@ -11,6 +11,7 @@ import AnimatedCounter from '@/components/shared/AnimatedCounter';
 import { PageSpinner } from '@/components/ui/Spinner';
 import { cn, getCategoryColor, getCategoryLabel, getStatusColor } from '@/lib/utils';
 import type { MilestoneCategory, MilestoneStatus } from '@/types';
+import SEO from '@/components/shared/SEO';
 import toast from 'react-hot-toast';
 
 const categories: MilestoneCategory[] = ['MOTOR', 'COGNITIVE', 'SPEECH', 'SOCIAL', 'EMOTIONAL'];
@@ -52,6 +53,7 @@ export default function MilestonesPage() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+      <SEO title="Milestones" description="Track your child's developmental milestones across cognitive, motor, language, social, and self-care categories." path="/milestones" />
       {/* Header with summary */}
       <div>
         <h1 className="text-display-sm text-text-primary">

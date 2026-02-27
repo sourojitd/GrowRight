@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { getApiErrorMessage } from '@/lib/api';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
+import SEO from '@/components/shared/SEO';
 import toast from 'react-hot-toast';
 
 export default function RegisterPage() {
@@ -43,6 +44,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-surface-primary flex items-center justify-center px-4 relative overflow-hidden">
+      <SEO title="Create Account" description="Create a free GrowRight account to start tracking your child's developmental milestones and growth." path="/register" />
       {/* Floating gradient orbs */}
       <div className="absolute top-[-15%] right-[-10%] w-[500px] h-[500px] gradient-orb bg-accent-purple/20 animate-float" />
       <div className="absolute bottom-[-20%] left-[-5%] w-[400px] h-[400px] gradient-orb bg-accent-blue/20 animate-float-slow" />
