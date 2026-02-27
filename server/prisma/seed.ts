@@ -126,6 +126,7 @@ async function main() {
         suggestedActivities: t.suggestedActivities,
         materials: t.materials,
         purchaseUrl: t.purchaseUrl || null,
+        imageUrl: t.imageUrl || null,
       },
       create: {
         id,
@@ -137,6 +138,7 @@ async function main() {
         suggestedActivities: t.suggestedActivities,
         materials: t.materials,
         purchaseUrl: t.purchaseUrl || null,
+        imageUrl: t.imageUrl || null,
       },
     });
     toyCount++;

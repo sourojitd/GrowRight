@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Gift, Package, Heart, Sparkles, ExternalLink } from 'lucide-react';
 import ThoughtBubble from '@/components/toys/ThoughtBubble';
-import { getToyImageUrl } from '@/components/toys/toyImages';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiGet, apiPost, apiDelete } from '@/lib/api';
 import { useChildren } from '@/hooks/useChildren';
@@ -134,9 +133,9 @@ export default function ToysPage() {
               className="relative"
             >
               <AnimatePresence>
-                {hoveredToyId === toy.id && (
+                {hoveredToyId === toy.id && toy.imageUrl && (
                   <ThoughtBubble
-                    imageUrl={getToyImageUrl(toy.title, toy.category)}
+                    imageUrl={toy.imageUrl}
                     alt={toy.title}
                   />
                 )}

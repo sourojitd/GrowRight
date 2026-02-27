@@ -14,6 +14,7 @@ export interface ToyData {
   suggestedActivities: string[];
   materials: string[];
   purchaseUrl?: string;
+  imageUrl?: string;
 }
 
 export const toys: ToyData[] = [
@@ -36,6 +37,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Soft cotton fabric', 'Non-toxic filling', 'Small bell insert'],
     purchaseUrl: 'https://www.amazon.in/s?k=soft+fabric+rattle+set+baby',
+    imageUrl: 'https://images.pexels.com/photos/1661912/pexels-photo-1661912.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'MOTOR',
@@ -50,6 +52,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Padded cotton mat', 'Plastic arches', 'Detachable plush toys'],
     purchaseUrl: 'https://www.amazon.in/s?k=baby+play+gym+mat',
+    imageUrl: 'https://images.pexels.com/photos/3661335/pexels-photo-3661335.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
 
   // ── 6–12 months ─────────────────────────────────────────────
@@ -66,6 +69,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['BIS-certified plastic', 'Rocking base'],
     purchaseUrl: 'https://www.amazon.in/s?k=stacking+rings+baby+toy',
+    imageUrl: 'https://images.pexels.com/photos/6692878/pexels-photo-6692878.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'MOTOR',
@@ -80,6 +84,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Smooth-finish wood or BPA-free plastic', 'Rubber wheel grips'],
     purchaseUrl: 'https://www.flipkart.com/search?q=baby+push+walker+with+blocks',
+    imageUrl: 'https://images.pexels.com/photos/7269688/pexels-photo-7269688.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
 
   // ── 12–24 months ────────────────────────────────────────────
@@ -96,6 +101,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Non-toxic painted wood', 'Wooden mallet'],
     purchaseUrl: 'https://www.amazon.in/s?k=wooden+hammer+peg+bench+toddler',
+    imageUrl: 'https://images.pexels.com/photos/3933039/pexels-photo-3933039.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'MOTOR',
@@ -110,6 +116,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Steel or plastic frame', 'Wide-grip handlebars', 'Parent push handle'],
     purchaseUrl: 'https://www.amazon.in/s?k=kids+tricycle+1-3+years',
+    imageUrl: 'https://images.pexels.com/photos/4563678/pexels-photo-4563678.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
 
   // ── 24–60 months ────────────────────────────────────────────
@@ -126,6 +133,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Large wooden beads', 'Cotton lacing cord with stiff tip'],
     purchaseUrl: 'https://www.amazon.in/s?k=wooden+lacing+threading+beads+kids',
+    imageUrl: 'https://images.pexels.com/photos/3662945/pexels-photo-3662945.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'MOTOR',
@@ -140,6 +148,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Child-safe rounded scissors', 'Printed activity sheets', 'Glue stick'],
     purchaseUrl: 'https://www.amazon.in/s?k=kids+scissors+cutting+activity+set',
+    imageUrl: 'https://images.pexels.com/photos/8612992/pexels-photo-8612992.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
 
   // ╔══════════════════════════════════════════════════════════════╗
@@ -160,6 +169,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Thick cardstock', 'Non-toxic ink'],
     purchaseUrl: 'https://www.amazon.in/s?k=high+contrast+flash+cards+newborn',
+    imageUrl: 'https://images.pexels.com/photos/6849283/pexels-photo-6849283.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
 
   // ── 6–12 months ─────────────────────────────────────────────
@@ -176,6 +186,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['BPA-free plastic', 'Drainage holes for bath play'],
     purchaseUrl: 'https://www.amazon.in/s?k=nesting+stacking+cups+baby',
+    imageUrl: 'https://images.pexels.com/photos/8504276/pexels-photo-8504276.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'COGNITIVE',
@@ -190,6 +201,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['BPA-free plastic or non-toxic wood', 'Multiple shape blocks'],
     purchaseUrl: 'https://www.flipkart.com/search?q=shape+sorter+toy+baby',
+    imageUrl: 'https://images.pexels.com/photos/7269674/pexels-photo-7269674.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
 
   // ── 12–24 months ────────────────────────────────────────────
@@ -206,6 +218,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['MDF or plywood', 'Non-toxic paint', 'Large wooden knobs'],
     purchaseUrl: 'https://www.amazon.in/s?k=wooden+knob+puzzle+toddler',
+    imageUrl: 'https://images.pexels.com/photos/6692843/pexels-photo-6692843.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'COGNITIVE',
@@ -220,6 +233,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Non-toxic painted wood', 'Removable number blocks', 'Movable hands'],
     purchaseUrl: 'https://www.amazon.in/s?k=wooden+shape+sorting+clock+toddler',
+    imageUrl: 'https://images.pexels.com/photos/311269/pexels-photo-311269.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
 
   // ── 18–60 months ────────────────────────────────────────────
@@ -236,6 +250,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Smooth wooden blocks or Mega Bloks-style interlocking bricks'],
     purchaseUrl: 'https://www.amazon.in/s?k=building+blocks+set+kids+wooden',
+    imageUrl: 'https://images.pexels.com/photos/7269687/pexels-photo-7269687.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'COGNITIVE',
@@ -250,6 +265,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Magnetic drawing surface', 'Stylus pen', 'Stamp shapes'],
     purchaseUrl: 'https://www.flipkart.com/search?q=magnetic+drawing+board+kids',
+    imageUrl: 'https://images.pexels.com/photos/8501525/pexels-photo-8501525.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'COGNITIVE',
@@ -264,6 +280,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Smooth wooden frame', 'Coloured wooden beads', 'Metal rods'],
     purchaseUrl: 'https://www.amazon.in/s?k=wooden+abacus+counting+frame+kids',
+    imageUrl: 'https://images.pexels.com/photos/1019470/pexels-photo-1019470.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'COGNITIVE',
@@ -278,6 +295,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Painted smooth wood', '10 graduated rods'],
     purchaseUrl: 'https://www.amazon.in/s?k=montessori+number+rods',
+    imageUrl: 'https://images.pexels.com/photos/5412109/pexels-photo-5412109.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'COGNITIVE',
@@ -292,6 +310,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Wooden or magnetic tangram pieces', 'Pattern cards'],
     purchaseUrl: 'https://www.amazon.in/s?k=tangram+puzzle+set+kids+wooden',
+    imageUrl: 'https://images.pexels.com/photos/7605993/pexels-photo-7605993.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'COGNITIVE',
@@ -306,6 +325,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['MDF or plywood tracing board', 'Wooden stylus'],
     purchaseUrl: 'https://www.amazon.in/s?k=alphabet+number+tracing+board+kids',
+    imageUrl: 'https://images.pexels.com/photos/8923557/pexels-photo-8923557.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'COGNITIVE',
@@ -320,6 +340,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Non-toxic painted wood', 'Segmented circle pieces', 'Base board'],
     purchaseUrl: 'https://www.amazon.in/s?k=fraction+puzzle+kids+wooden+educational',
+    imageUrl: 'https://images.pexels.com/photos/5412226/pexels-photo-5412226.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'COGNITIVE',
@@ -334,6 +355,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Foam or plastic planet balls', 'Paint set', 'Wire arm frame'],
     purchaseUrl: 'https://www.amazon.in/s?k=solar+system+model+kit+kids',
+    imageUrl: 'https://images.pexels.com/photos/2869085/pexels-photo-2869085.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'COGNITIVE',
@@ -348,6 +370,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Magnetic board', 'State-shaped magnetic pieces', 'Labels'],
     purchaseUrl: 'https://www.amazon.in/s?k=magnetic+india+map+puzzle+kids',
+    imageUrl: 'https://images.pexels.com/photos/8087869/pexels-photo-8087869.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'COGNITIVE',
@@ -362,6 +385,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Wooden geometric blocks (hexagons, triangles, rhombuses)', 'Activity cards'],
     purchaseUrl: 'https://www.flipkart.com/search?q=pattern+block+set+kids+educational',
+    imageUrl: 'https://images.pexels.com/photos/3933030/pexels-photo-3933030.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'COGNITIVE',
@@ -376,6 +400,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Plastic counting bears (multiple colours/sizes)', 'Sorting cups', 'Activity cards'],
     purchaseUrl: 'https://www.amazon.in/s?k=counting+bears+sorting+cups+kids',
+    imageUrl: 'https://images.pexels.com/photos/6692940/pexels-photo-6692940.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'COGNITIVE',
@@ -390,6 +415,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Wooden letter tiles', 'Illustrated word cards', 'Tile tray'],
     purchaseUrl: 'https://www.amazon.in/s?k=spelling+word+building+kit+kids+wooden',
+    imageUrl: 'https://images.pexels.com/photos/8612931/pexels-photo-8612931.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
 
   // ╔══════════════════════════════════════════════════════════════╗
@@ -410,6 +436,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Soft cotton or polyester fabric', 'Crinkle insert', 'Non-toxic dyes'],
     purchaseUrl: 'https://www.amazon.in/s?k=cloth+book+crinkle+baby',
+    imageUrl: 'https://images.pexels.com/photos/8613089/pexels-photo-8613089.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
 
   // ── 6–24 months ─────────────────────────────────────────────
@@ -426,6 +453,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['BPA-free plastic', 'Speaker', 'LED buttons'],
     purchaseUrl: 'https://www.flipkart.com/search?q=musical+rhyme+phone+toy+baby',
+    imageUrl: 'https://images.pexels.com/photos/5471946/pexels-photo-5471946.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'SPEECH',
@@ -440,6 +468,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Thick cardboard pages', 'Glossy print'],
     purchaseUrl: 'https://www.amazon.in/s?k=bilingual+board+books+hindi+english+baby',
+    imageUrl: 'https://images.pexels.com/photos/5608541/pexels-photo-5608541.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
 
   // ── 12–36 months ────────────────────────────────────────────
@@ -456,6 +485,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Board book with embedded speaker module', 'Button-activated sounds'],
     purchaseUrl: 'https://www.amazon.in/s?k=interactive+sound+book+animals+kids',
+    imageUrl: 'https://images.pexels.com/photos/7296290/pexels-photo-7296290.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
 
   // ── 18–60 months ────────────────────────────────────────────
@@ -472,6 +502,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Soft fabric or felt', 'Embroidered features'],
     purchaseUrl: 'https://www.amazon.in/s?k=hand+puppet+set+kids',
+    imageUrl: 'https://images.pexels.com/photos/4604/pexels-photo-4604.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'SPEECH',
@@ -486,6 +517,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['BPA-free plastic', 'Speaker module', 'LED display'],
     purchaseUrl: 'https://www.amazon.in/s?k=phonics+learning+toy+kids',
+    imageUrl: 'https://images.pexels.com/photos/8294806/pexels-photo-8294806.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'SPEECH',
@@ -500,6 +532,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Wooden or foam dice', 'Illustrated cards'],
     purchaseUrl: 'https://www.amazon.in/s?k=story+dice+picture+cards+kids',
+    imageUrl: 'https://images.pexels.com/photos/8111328/pexels-photo-8111328.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'SPEECH',
@@ -514,6 +547,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Laminated wall chart', 'Speaker module', 'Battery compartment'],
     purchaseUrl: 'https://www.amazon.in/s?k=hindi+varnamala+interactive+chart+kids',
+    imageUrl: 'https://images.pexels.com/photos/1576288/pexels-photo-1576288.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
 
   // ╔══════════════════════════════════════════════════════════════╗
@@ -534,6 +568,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Soft muslin cloth or light dupatta'],
     purchaseUrl: 'https://www.amazon.in/s?k=muslin+cloth+baby+blanket',
+    imageUrl: 'https://images.pexels.com/photos/8504269/pexels-photo-8504269.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
 
   // ── 18–60 months ────────────────────────────────────────────
@@ -550,6 +585,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Stainless steel or plastic utensils', 'Play food items'],
     purchaseUrl: 'https://www.amazon.in/s?k=kids+play+kitchen+set+indian',
+    imageUrl: 'https://images.pexels.com/photos/4868313/pexels-photo-4868313.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'SOCIAL',
@@ -564,6 +600,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Play fruits/vegetables', 'Toy cash register', 'Play money/coins'],
     purchaseUrl: 'https://www.amazon.in/s?k=grocery+shop+pretend+play+set+kids',
+    imageUrl: 'https://images.pexels.com/photos/3772534/pexels-photo-3772534.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
 
   // ── 24–60 months ────────────────────────────────────────────
@@ -580,6 +617,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Plastic stethoscope', 'Toy thermometer', 'Carry bag'],
     purchaseUrl: 'https://www.flipkart.com/search?q=doctor+play+kit+kids',
+    imageUrl: 'https://images.pexels.com/photos/31247025/pexels-photo-31247025.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'SOCIAL',
@@ -594,6 +632,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Old dupatta/saree pieces', 'Hats', 'Fabric capes', 'Stick-on badges'],
     purchaseUrl: 'https://www.amazon.in/s?k=kids+dress+up+costume+set',
+    imageUrl: 'https://images.pexels.com/photos/8501420/pexels-photo-8501420.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
 
   // ── 36–60 months ────────────────────────────────────────────
@@ -610,6 +649,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Printed board', 'Dice', 'Coloured pawns'],
     purchaseUrl: 'https://www.amazon.in/s?k=snakes+and+ladders+board+game+kids',
+    imageUrl: 'https://images.pexels.com/photos/9090534/pexels-photo-9090534.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'SOCIAL',
@@ -624,6 +664,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Thick cardstock cards', 'Illustrated matching pairs'],
     purchaseUrl: 'https://www.amazon.in/s?k=memory+matching+card+game+kids',
+    imageUrl: 'https://images.pexels.com/photos/8111367/pexels-photo-8111367.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
 
   // ╔══════════════════════════════════════════════════════════════╗
@@ -644,6 +685,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Ultra-soft cotton or velour', 'Lightweight stuffing'],
     purchaseUrl: 'https://www.amazon.in/s?k=baby+lovey+security+blanket',
+    imageUrl: 'https://images.pexels.com/photos/860882/pexels-photo-860882.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
 
   // ── 12–48 months ────────────────────────────────────────────
@@ -660,6 +702,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Clear plastic bottle', 'Glitter', 'Water', 'Glycerine', 'Super glue for cap'],
     purchaseUrl: 'https://www.amazon.in/s?k=calm+down+sensory+bottle+kids',
+    imageUrl: 'https://images.pexels.com/photos/4022247/pexels-photo-4022247.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'EMOTIONAL',
@@ -674,6 +717,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Soft polyester plush', 'Embroidered features', 'Machine washable'],
     purchaseUrl: 'https://www.amazon.in/s?k=stuffed+animal+family+set+kids',
+    imageUrl: 'https://images.pexels.com/photos/37158/pexels-photo-37158.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
 
   // ── 18–60 months ────────────────────────────────────────────
@@ -690,6 +734,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Thick cardstock', 'Illustrated emotion faces'],
     purchaseUrl: 'https://www.amazon.in/s?k=feelings+emotions+flashcards+kids',
+    imageUrl: 'https://images.pexels.com/photos/6437505/pexels-photo-6437505.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'EMOTIONAL',
@@ -704,6 +749,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Atta (wheat flour) dough or commercial play dough', 'Rolling pin', 'Cookie cutters'],
     purchaseUrl: 'https://www.amazon.in/s?k=play+dough+set+kids+funskool',
+    imageUrl: 'https://images.pexels.com/photos/8422174/pexels-photo-8422174.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'EMOTIONAL',
@@ -718,6 +764,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Printed cardboard wheel', 'Spinner arrow', 'Emotion illustrations'],
     purchaseUrl: 'https://www.amazon.in/s?k=emotion+feelings+wheel+kids',
+    imageUrl: 'https://images.pexels.com/photos/8535592/pexels-photo-8535592.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
 
   // ── 24–60 months ────────────────────────────────────────────
@@ -734,6 +781,7 @@ export const toys: ToyData[] = [
     ],
     materials: ['Paperback or board books', 'Colour illustrations'],
     purchaseUrl: 'https://www.amazon.in/s?k=feelings+emotions+storybook+set+kids',
+    imageUrl: 'https://images.pexels.com/photos/8613093/pexels-photo-8613093.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     category: 'EMOTIONAL',
@@ -748,5 +796,6 @@ export const toys: ToyData[] = [
     ],
     materials: ['Soft weighted plush', 'Hypoallergenic filling'],
     purchaseUrl: 'https://www.amazon.in/s?k=weighted+stuffed+animal+kids+calming',
+    imageUrl: 'https://images.pexels.com/photos/3693367/pexels-photo-3693367.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
 ];

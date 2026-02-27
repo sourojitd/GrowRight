@@ -107,6 +107,7 @@ export interface Toy {
   suggestedActivities: string[];
   materials: string[];
   purchaseUrl?: string;
+  imageUrl?: string;
   isSaved?: boolean;
 }
 
