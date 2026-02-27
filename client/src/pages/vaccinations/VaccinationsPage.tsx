@@ -70,6 +70,19 @@ export default function VaccinationsPage() {
     enabled: !!selectedChild,
   });
 
+  const bulkAdministerMutation = useMutation({
+    mutationFn: () => apiPost<{ administered: number }>(`/vaccinations/child/${selectedChild!.id}/bulk-administer`),
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ['vaccinations', selectedChild?.id] });
+      if (result.administered > 0) {
+        toast.success(`Marked ${result.administered} vaccines as administered`);
+      } else {
+        toast.success('All due vaccines are already administered');
+      }
+    },
+    onError: () => toast.error('Failed to bulk-administer'),
+  });
+
   const toggleMutation = useMutation({
     mutationFn: ({ vaccinationId, isAdministered }: { vaccinationId: string; isAdministered: boolean }) =>
       apiPatch(`/vaccinations/child/${selectedChild!.id}/${vaccinationId}`, { isAdministered }),
@@ -135,19 +148,6 @@ export default function VaccinationsPage() {
   const overallPercent = summary.total > 0 ? Math.round((summary.administered / summary.total) * 100) : 0;
 
   const dueUnadministered = vaccinations.filter((v) => v.isDue && !v.isAdministered).length;
-
-  const bulkAdministerMutation = useMutation({
-    mutationFn: () => apiPost<{ administered: number }>(`/vaccinations/child/${selectedChild!.id}/bulk-administer`),
-    onSuccess: (result) => {
-      queryClient.invalidateQueries({ queryKey: ['vaccinations', selectedChild?.id] });
-      if (result.administered > 0) {
-        toast.success(`Marked ${result.administered} vaccines as administered`);
-      } else {
-        toast.success('All due vaccines are already administered');
-      }
-    },
-    onError: () => toast.error('Failed to bulk-administer'),
-  });
 
   const handleToggle = (vaccinationId: string, current: boolean) => {
     toggleMutation.mutate(
