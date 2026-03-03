@@ -2,7 +2,13 @@ import { Resend } from 'resend';
 import { config } from '../config';
 import { logger } from '../config/logger';
 
-const resend = new Resend(config.RESEND_API_KEY);
+// Lazy — only instantiate when actually needed and key is present
+let _resend: Resend | null = null;
+function getResend(): Resend | null {
+  if (!config.RESEND_API_KEY) return null;
+  if (!_resend) _resend = new Resend(config.RESEND_API_KEY);
+  return _resend;
+}
 
 export async function sendEmail({
   to,
@@ -13,7 +19,8 @@ export async function sendEmail({
   subject: string;
   html: string;
 }) {
-  if (!config.RESEND_API_KEY) {
+  const resend = getResend();
+  if (!resend) {
     logger.warn('RESEND_API_KEY not set — skipping email send', { to, subject });
     return;
   }
