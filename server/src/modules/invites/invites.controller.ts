@@ -6,7 +6,7 @@ class InvitesController {
   async createInvite(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const result = await invitesService.createInvite(
-        req.params.childId!,
+        req.params.childId as string,
         req.user!.userId,
         req.body.email,
         req.body.role
@@ -19,7 +19,7 @@ class InvitesController {
 
   async listInvites(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      const invites = await invitesService.listInvites(req.params.childId!, req.user!.userId);
+      const invites = await invitesService.listInvites(req.params.childId as string, req.user!.userId);
       res.json({ success: true, data: invites });
     } catch (error) {
       next(error);
@@ -28,7 +28,7 @@ class InvitesController {
 
   async listAccesses(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      const accesses = await invitesService.listAccesses(req.params.childId!, req.user!.userId);
+      const accesses = await invitesService.listAccesses(req.params.childId as string, req.user!.userId);
       res.json({ success: true, data: accesses });
     } catch (error) {
       next(error);
@@ -37,7 +37,7 @@ class InvitesController {
 
   async revokeInvite(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      await invitesService.revokeInvite(req.params.inviteId!, req.params.childId!, req.user!.userId);
+      await invitesService.revokeInvite(req.params.inviteId as string, req.params.childId as string, req.user!.userId);
       res.json({ success: true, message: 'Invite revoked' });
     } catch (error) {
       next(error);
@@ -46,7 +46,7 @@ class InvitesController {
 
   async removeAccess(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      await invitesService.removeAccess(req.params.accessId!, req.params.childId!, req.user!.userId);
+      await invitesService.removeAccess(req.params.accessId as string, req.params.childId as string, req.user!.userId);
       res.json({ success: true, message: 'Access removed' });
     } catch (error) {
       next(error);
