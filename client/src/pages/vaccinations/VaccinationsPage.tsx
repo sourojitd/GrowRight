@@ -165,7 +165,7 @@ function VaccineDetailPanel({ vaccine, childId, onSaved }: DetailPanelProps) {
 }
 
 export default function VaccinationsPage() {
-  const { selectedChild } = useChildren();
+  const { selectedChild, isLoading: childrenLoading, hasFetched } = useChildren();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<TabFilter>('ALL');
   const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
@@ -222,6 +222,8 @@ export default function VaccinationsPage() {
     },
   });
 
+  if (!hasFetched || childrenLoading) return <PageSpinner />;
+
   if (!selectedChild) {
     return (
       <EmptyState
@@ -234,8 +236,7 @@ export default function VaccinationsPage() {
     );
   }
 
-  if (isLoading) return <PageSpinner />;
-  if (!data) return null;
+  if (isLoading || !data) return <PageSpinner />;
 
   const { vaccinations, summary } = data;
 
