@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Syringe,
@@ -171,6 +171,7 @@ export default function VaccinationsPage() {
   const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
   const [detailsMode, setDetailsMode] = useState(false);
   const [expandedVaccine, setExpandedVaccine] = useState<string | null>(null);
+  const autoExpanded = useRef(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ['vaccinations', selectedChild?.id],
@@ -221,6 +222,15 @@ export default function VaccinationsPage() {
       queryClient.invalidateQueries({ queryKey: ['vaccinations', selectedChild?.id] });
     },
   });
+
+  // Auto-expand the first group that has due vaccines when data first loads
+  useEffect(() => {
+    if (!data || autoExpanded.current) return;
+    autoExpanded.current = true;
+    const firstDue = data.vaccinations.find((v) => v.isDue && !v.isAdministered);
+    const fallback = data.vaccinations[0];
+    setExpandedGroup(firstDue ? firstDue.ageLabel : (fallback?.ageLabel ?? null));
+  }, [data]);
 
   if (!hasFetched || childrenLoading) return <PageSpinner />;
 
