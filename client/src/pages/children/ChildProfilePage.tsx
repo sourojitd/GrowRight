@@ -1,7 +1,7 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, Target, Sparkles, Route, Trash2, Edit2, CheckCheck } from 'lucide-react';
+import { Calendar, Target, Sparkles, Route, Trash2, Edit2, CheckCheck, Share2 } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiGet, apiPost, getApiErrorMessage } from '@/lib/api';
 import { useChildStore } from '@/stores/childStore';
@@ -19,6 +19,7 @@ import SEO from '@/components/shared/SEO';
 import { PageSpinner } from '@/components/ui/Spinner';
 import { getProfileTheme } from '@/components/children/profileTheme';
 import ProfileBannerDecorations from '@/components/children/ProfileBannerDecorations';
+import InviteModal from '@/components/children/InviteModal';
 import { formatDate, getCategoryLabel, getCategoryDotColor } from '@/lib/utils';
 import toast from 'react-hot-toast';
 import type { Child } from '@/types';
@@ -31,6 +32,7 @@ export default function ChildProfilePage() {
   const updateChild = useChildStore((s) => s.updateChild);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isBulkCompleting, setIsBulkCompleting] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -123,11 +125,13 @@ export default function ChildProfilePage() {
       const result = await apiPost<{ completed: number }>(`/activities/child/${child.id}/bulk-complete-past`);
       if (result.completed > 0) {
         toast.success(`Marked ${result.completed} past activities as complete`);
-        await queryClient.invalidateQueries({ queryKey: ['past-incomplete', childId] });
-        await queryClient.invalidateQueries({ queryKey: ['child', childId] });
       } else {
         toast.success('All past activities are already complete');
       }
+      // Always refresh — banner could be stale if activities were logged individually
+      await queryClient.invalidateQueries({ queryKey: ['past-incomplete', childId] });
+      await queryClient.invalidateQueries({ queryKey: ['child', childId] });
+      await queryClient.invalidateQueries({ queryKey: ['activities'] });
     } catch {
       toast.error('Failed to mark activities');
     } finally {
@@ -156,6 +160,9 @@ export default function ChildProfilePage() {
           <div className="flex gap-2 mt-4">
             <Button variant="secondary" size="sm" onClick={() => setShowEditModal(true)}>
               <Edit2 className="w-4 h-4" /> Edit
+            </Button>
+            <Button variant="secondary" size="sm" onClick={() => setShowInviteModal(true)}>
+              <Share2 className="w-4 h-4" /> Share
             </Button>
             <Button variant="danger" size="sm" onClick={() => setShowDeleteModal(true)}>
               <Trash2 className="w-4 h-4" />
@@ -368,6 +375,14 @@ export default function ChildProfilePage() {
           </Button>
         </div>
       </Modal>
+
+      {/* Share / Invite Modal */}
+      <InviteModal
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        childId={child.id}
+        childName={child.name}
+      />
     </motion.div>
   );
 }

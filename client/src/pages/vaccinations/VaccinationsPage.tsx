@@ -11,6 +11,10 @@ import {
   Building2,
   Stethoscope,
   CircleDot,
+  SlidersHorizontal,
+  CalendarDays,
+  FileText,
+  Save,
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiGet, apiPatch, apiPost } from '@/lib/api';
@@ -58,11 +62,115 @@ interface VaccinationData {
   };
 }
 
+interface DetailPanelProps {
+  vaccine: VaccinationItem;
+  childId: string;
+  onSaved: () => void;
+}
+
+function VaccineDetailPanel({ vaccine, childId, onSaved }: DetailPanelProps) {
+  const queryClient = useQueryClient();
+  const [isAdministered, setIsAdministered] = useState(vaccine.isAdministered);
+  const [date, setDate] = useState(
+    vaccine.administeredDate ? vaccine.administeredDate.slice(0, 10) : ''
+  );
+  const [notes, setNotes] = useState(vaccine.notes ?? '');
+
+  const saveMutation = useMutation({
+    mutationFn: () =>
+      apiPatch(`/vaccinations/child/${childId}/${vaccine.id}`, {
+        isAdministered,
+        administeredDate: date || undefined,
+        notes: notes || undefined,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vaccinations', childId] });
+      toast.success('Saved');
+      onSaved();
+    },
+    onError: () => toast.error('Failed to save'),
+  });
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: 'auto' }}
+      exit={{ opacity: 0, height: 0 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      className="overflow-hidden"
+    >
+      <div className="mx-4 sm:mx-5 mb-4 p-4 rounded-xl bg-surface-secondary border border-border-light space-y-4">
+        {/* Administered toggle */}
+        <div className="flex items-center justify-between">
+          <span className="text-subhead font-medium text-text-primary">Administered</span>
+          <button
+            onClick={() => setIsAdministered((v) => !v)}
+            className={cn(
+              'w-11 h-6 rounded-full transition-colors duration-200 relative flex-shrink-0',
+              isAdministered ? 'bg-accent-green' : 'bg-surface-tertiary'
+            )}
+          >
+            <span
+              className={cn(
+                'absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform duration-200',
+                isAdministered ? 'translate-x-5' : 'translate-x-0.5'
+              )}
+            />
+          </button>
+        </div>
+
+        {/* Date field */}
+        <div>
+          <label className="flex items-center gap-1.5 text-caption text-text-secondary mb-1.5">
+            <CalendarDays className="w-3.5 h-3.5" />
+            Date administered
+          </label>
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            max={new Date().toISOString().slice(0, 10)}
+            className="w-full px-3 py-2 rounded-xl bg-surface-primary border border-border text-subhead text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-blue/30 focus:border-accent-blue transition-colors"
+          />
+        </div>
+
+        {/* Notes field */}
+        <div>
+          <label className="flex items-center gap-1.5 text-caption text-text-secondary mb-1.5">
+            <FileText className="w-3.5 h-3.5" />
+            Notes
+          </label>
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Batch no., clinic, side effects…"
+            rows={2}
+            maxLength={500}
+            className="w-full px-3 py-2 rounded-xl bg-surface-primary border border-border text-subhead text-text-primary placeholder:text-text-quaternary focus:outline-none focus:ring-2 focus:ring-accent-blue/30 focus:border-accent-blue transition-colors resize-none"
+          />
+        </div>
+
+        <Button
+          variant="gradient"
+          size="sm"
+          isLoading={saveMutation.isPending}
+          onClick={() => saveMutation.mutate()}
+          className="w-full"
+        >
+          <Save className="w-4 h-4" /> Save Details
+        </Button>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function VaccinationsPage() {
   const { selectedChild } = useChildren();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<TabFilter>('ALL');
   const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
+  const [detailsMode, setDetailsMode] = useState(false);
+  const [expandedVaccine, setExpandedVaccine] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['vaccinations', selectedChild?.id],
@@ -131,10 +239,8 @@ export default function VaccinationsPage() {
 
   const { vaccinations, summary } = data;
 
-  // Filter by tab
   const filtered = activeTab === 'ALL' ? vaccinations : vaccinations.filter((v) => v.category === activeTab);
 
-  // Group by ageLabel
   const groups = filtered.reduce<Record<string, VaccinationItem[]>>((acc, v) => {
     if (!acc[v.ageLabel]) acc[v.ageLabel] = [];
     acc[v.ageLabel]!.push(v);
@@ -146,31 +252,65 @@ export default function VaccinationsPage() {
   const govAdministered = vaccinations.filter((v) => v.category === 'GOVERNMENT' && v.isAdministered).length;
   const pvtAdministered = vaccinations.filter((v) => v.category === 'PRIVATE' && v.isAdministered).length;
   const overallPercent = summary.total > 0 ? Math.round((summary.administered / summary.total) * 100) : 0;
-
   const dueUnadministered = vaccinations.filter((v) => v.isDue && !v.isAdministered).length;
 
-  const handleToggle = (vaccinationId: string, current: boolean) => {
-    toggleMutation.mutate(
-      { vaccinationId, isAdministered: !current },
-      {
-        onSuccess: () => toast.success(!current ? 'Marked as given' : 'Unmarked'),
-        onError: () => toast.error('Failed to update'),
-      }
-    );
+  const handleVaccineClick = (vaccine: VaccinationItem) => {
+    if (detailsMode) {
+      setExpandedVaccine((cur) => (cur === vaccine.id ? null : vaccine.id));
+    } else {
+      toggleMutation.mutate(
+        { vaccinationId: vaccine.id, isAdministered: !vaccine.isAdministered },
+        {
+          onSuccess: () => toast.success(!vaccine.isAdministered ? 'Marked as given' : 'Unmarked'),
+          onError: () => toast.error('Failed to update'),
+        }
+      );
+    }
   };
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
       <SEO title="Vaccinations" description="Track your child's immunisation schedule and vaccination history." path="/vaccinations" />
+
       {/* Header */}
-      <div>
-        <h1 className="text-display-sm text-text-primary">
-          Vaccinations for <span className="text-gradient">{selectedChild.name}</span>
-        </h1>
-        <p className="text-body text-text-secondary mt-1">
-          {selectedChild.ageFormatted} old — Indian Immunization Schedule (IAP + UIP)
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-display-sm text-text-primary">
+            Vaccinations for <span className="text-gradient">{selectedChild.name}</span>
+          </h1>
+          <p className="text-body text-text-secondary mt-1">
+            {selectedChild.ageFormatted} old — Indian Immunization Schedule (IAP + UIP)
+          </p>
+        </div>
+        {/* Details mode toggle */}
+        <button
+          onClick={() => {
+            setDetailsMode((v) => !v);
+            setExpandedVaccine(null);
+          }}
+          className={cn(
+            'flex items-center gap-2 px-3 py-2 rounded-xl text-subhead font-medium transition-all duration-200 shrink-0',
+            detailsMode
+              ? 'bg-accent-blue text-white shadow-glow-blue'
+              : 'bg-surface-secondary text-text-secondary hover:bg-surface-tertiary'
+          )}
+          title={detailsMode ? 'Switch to quick-toggle mode' : 'Switch to details mode (edit dates & notes)'}
+        >
+          <SlidersHorizontal className="w-4 h-4" />
+          <span className="hidden sm:inline">{detailsMode ? 'Details On' : 'Add Details'}</span>
+        </button>
       </div>
+
+      {detailsMode && (
+        <motion.div
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center gap-2 px-4 py-3 rounded-xl bg-accent-blue/10 border border-accent-blue/20 text-caption text-accent-blue"
+        >
+          <SlidersHorizontal className="w-3.5 h-3.5 flex-shrink-0" />
+          Details mode — tap a vaccine to edit its date and notes. Toggle off to return to quick-mark mode.
+        </motion.div>
+      )}
 
       {/* Overall Progress */}
       <Card variant="elevated" className="border border-accent-blue/10">
@@ -363,75 +503,114 @@ export default function VaccinationsPage() {
                     >
                       <div className="border-t border-border-light">
                         {items.map((vaccine, idx) => (
-                          <motion.div
-                            key={vaccine.id}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: idx * 0.05 }}
-                            onClick={() => handleToggle(vaccine.id, vaccine.isAdministered)}
-                            className={cn(
-                              'flex items-start gap-3 sm:gap-4 px-4 sm:px-5 py-4 cursor-pointer select-none hover:bg-surface-secondary/50 transition-colors',
-                              idx !== items.length - 1 && 'border-b border-border-light/50'
-                            )}
-                          >
-                            {/* Checkbox (visual only — row is clickable) */}
-                            <div
+                          <div key={vaccine.id}>
+                            <motion.div
+                              initial={{ opacity: 0, x: -10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: idx * 0.05 }}
+                              onClick={() => handleVaccineClick(vaccine)}
                               className={cn(
-                                'mt-0.5 w-6 h-6 rounded-lg border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200',
-                                vaccine.isAdministered
-                                  ? 'bg-accent-green border-accent-green text-white'
-                                  : 'border-border group-hover:border-accent-green/50'
+                                'flex items-start gap-3 sm:gap-4 px-4 sm:px-5 py-4 cursor-pointer select-none hover:bg-surface-secondary/50 transition-colors',
+                                expandedVaccine !== vaccine.id && idx !== items.length - 1 && 'border-b border-border-light/50',
+                                expandedVaccine === vaccine.id && 'bg-surface-secondary/30'
                               )}
                             >
-                              {vaccine.isAdministered && (
-                                <motion.div
-                                  initial={{ scale: 0 }}
-                                  animate={{ scale: 1 }}
-                                  transition={{ type: 'spring', stiffness: 500, damping: 15 }}
-                                >
-                                  <Check className="w-3.5 h-3.5" strokeWidth={3} />
-                                </motion.div>
-                              )}
-                            </div>
-
-                            {/* Info */}
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <p
-                                  className={cn(
-                                    'text-subhead font-medium',
-                                    vaccine.isAdministered
-                                      ? 'text-text-tertiary line-through'
-                                      : 'text-text-primary'
-                                  )}
-                                >
-                                  {vaccine.name}
-                                </p>
-                                <Badge
-                                  variant={vaccine.category === 'GOVERNMENT' ? 'green' : 'purple'}
-                                >
-                                  {vaccine.category === 'GOVERNMENT' ? 'Govt' : 'Pvt'}
-                                </Badge>
+                              {/* Checkbox */}
+                              <div
+                                className={cn(
+                                  'mt-0.5 w-6 h-6 rounded-lg border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200',
+                                  vaccine.isAdministered
+                                    ? 'bg-accent-green border-accent-green text-white'
+                                    : 'border-border'
+                                )}
+                              >
+                                {vaccine.isAdministered && (
+                                  <motion.div
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    transition={{ type: 'spring', stiffness: 500, damping: 15 }}
+                                  >
+                                    <Check className="w-3.5 h-3.5" strokeWidth={3} />
+                                  </motion.div>
+                                )}
                               </div>
-                              <p className="text-caption text-text-secondary mt-0.5">
-                                {vaccine.doseLabel}
-                              </p>
-                              <p className="text-caption text-text-tertiary mt-1 leading-relaxed">
-                                {vaccine.description}
-                              </p>
-                            </div>
 
-                            {/* Status dot */}
-                            <div className="flex-shrink-0 mt-1.5">
-                              {vaccine.isAdministered ? (
-                                <CircleDot className="w-4 h-4 text-accent-green" />
-                              ) : vaccine.isDue ? (
-                                <CircleDot className="w-4 h-4 text-accent-orange" />
-                              ) : (
-                                <CircleDot className="w-4 h-4 text-text-quaternary" />
+                              {/* Info */}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <p
+                                    className={cn(
+                                      'text-subhead font-medium',
+                                      vaccine.isAdministered && !detailsMode
+                                        ? 'text-text-tertiary line-through'
+                                        : 'text-text-primary'
+                                    )}
+                                  >
+                                    {vaccine.name}
+                                  </p>
+                                  <Badge variant={vaccine.category === 'GOVERNMENT' ? 'green' : 'purple'}>
+                                    {vaccine.category === 'GOVERNMENT' ? 'Govt' : 'Pvt'}
+                                  </Badge>
+                                </div>
+                                <p className="text-caption text-text-secondary mt-0.5">{vaccine.doseLabel}</p>
+                                <p className="text-caption text-text-tertiary mt-1 leading-relaxed">
+                                  {vaccine.description}
+                                </p>
+                                {/* Show saved date/notes inline when in quick mode */}
+                                {!detailsMode && vaccine.isAdministered && (vaccine.administeredDate || vaccine.notes) && (
+                                  <div className="mt-1.5 flex flex-wrap gap-3 text-caption text-text-tertiary">
+                                    {vaccine.administeredDate && (
+                                      <span className="flex items-center gap-1">
+                                        <CalendarDays className="w-3 h-3" />
+                                        {new Date(vaccine.administeredDate).toLocaleDateString()}
+                                      </span>
+                                    )}
+                                    {vaccine.notes && (
+                                      <span className="flex items-center gap-1 truncate max-w-[200px]">
+                                        <FileText className="w-3 h-3 flex-shrink-0" />
+                                        {vaccine.notes}
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Status / mode indicator */}
+                              <div className="flex-shrink-0 mt-1.5">
+                                {detailsMode ? (
+                                  <ChevronDown
+                                    className={cn(
+                                      'w-4 h-4 text-text-tertiary transition-transform duration-200',
+                                      expandedVaccine === vaccine.id && 'rotate-180'
+                                    )}
+                                  />
+                                ) : vaccine.isAdministered ? (
+                                  <CircleDot className="w-4 h-4 text-accent-green" />
+                                ) : vaccine.isDue ? (
+                                  <CircleDot className="w-4 h-4 text-accent-orange" />
+                                ) : (
+                                  <CircleDot className="w-4 h-4 text-text-quaternary" />
+                                )}
+                              </div>
+                            </motion.div>
+
+                            {/* Inline Detail Panel */}
+                            <AnimatePresence>
+                              {detailsMode && expandedVaccine === vaccine.id && (
+                                <VaccineDetailPanel
+                                  key={vaccine.id}
+                                  vaccine={vaccine}
+                                  childId={selectedChild.id}
+                                  onSaved={() => setExpandedVaccine(null)}
+                                />
                               )}
-                            </div>
-                          </motion.div>
+                            </AnimatePresence>
+
+                            {/* Bottom divider when detail panel is open */}
+                            {expandedVaccine === vaccine.id && idx !== items.length - 1 && (
+                              <div className="border-b border-border-light/50 mx-4" />
+                            )}
+                          </div>
                         ))}
                       </div>
                     </motion.div>

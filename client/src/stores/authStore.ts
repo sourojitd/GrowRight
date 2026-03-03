@@ -7,7 +7,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;
-  register: (credentials: RegisterCredentials) => Promise<void>;
+  register: (credentials: RegisterCredentials) => Promise<{ email: string }>;
   logout: () => Promise<void>;
   fetchProfile: () => Promise<void>;
   setUser: (user: User) => void;
@@ -38,14 +38,12 @@ export const useAuthStore = create<AuthState>((set) => ({
   register: async (credentials) => {
     set({ isLoading: true });
     try {
-      const { data } = await api.post<{ success: boolean; data: AuthResponse }>(
+      const { data } = await api.post<{ success: boolean; data: { message: string; email: string } }>(
         '/auth/register',
         credentials
       );
-      const { user, accessToken, refreshToken } = data.data;
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
-      set({ user, isAuthenticated: true, isLoading: false });
+      set({ isLoading: false });
+      return { email: data.data.email };
     } catch (error) {
       set({ isLoading: false });
       throw error;

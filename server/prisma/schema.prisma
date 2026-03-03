@@ -13,13 +13,14 @@ datasource db {
 
 // ─── Users ────────────────────────────────────────────
 model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
-  passwordHash  String   @map("password_hash")
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String    @map("password_hash")
   name          String
-  avatarUrl     String?  @map("avatar_url")
-  role          UserRole @default(PARENT)
-  emailVerified Boolean  @default(false) @map("email_verified")
+  avatarUrl     String?   @map("avatar_url")
+  role          UserRole  @default(PARENT)
+  emailVerified Boolean   @default(false) @map("email_verified")
+  verifiedAt    DateTime? @map("verified_at")
 
   // Subscription
   subscriptionTier SubscriptionTier @default(FREE) @map("subscription_tier")
@@ -28,11 +29,14 @@ model User {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  children      Child[]
-  roadmaps      Roadmap[]
-  refreshTokens RefreshToken[]
-  auditLogs     AuditLog[]
-  subscription  Subscription?
+  children           Child[]
+  roadmaps           Roadmap[]
+  refreshTokens      RefreshToken[]
+  auditLogs          AuditLog[]
+  subscription       Subscription?
+  verificationTokens VerificationToken[]
+  childAccesses      ChildAccess[]
+  sentChildInvites   ChildInvite[]       @relation("SentChildInvites")
 
   @@index([email])
   @@index([role])
@@ -48,6 +52,28 @@ enum SubscriptionTier {
   FREE
   PRO
   PREMIUM
+}
+
+// ─── Verification Tokens ──────────────────────────────
+model VerificationToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @map("token_hash")
+  type      TokenType
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tokenHash])
+  @@index([userId, type])
+  @@map("verification_tokens")
+}
+
+enum TokenType {
+  EMAIL_VERIFY
+  PASSWORD_RESET
 }
 
 // ─── Refresh Tokens ───────────────────────────────────
@@ -86,6 +112,8 @@ model Child {
   childToys         ChildToy[]
   childVaccinations ChildVaccination[]
   roadmaps          Roadmap[]
+  childAccesses     ChildAccess[]
+  childInvites      ChildInvite[]
 
   @@index([userId])
   @@index([dateOfBirth])
@@ -436,4 +464,54 @@ model AuditLog {
   @@index([entityType])
   @@index([createdAt])
   @@map("audit_logs")
+}
+
+// ─── Child Access (shared viewers) ────────────────────
+model ChildAccess {
+  id        String            @id @default(cuid())
+  role      ChildAccessRole   @default(VIEWER)
+  createdAt DateTime          @default(now()) @map("created_at")
+
+  userId  String @map("user_id")
+  childId String @map("child_id")
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  child   Child  @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, childId])
+  @@index([userId])
+  @@index([childId])
+  @@map("child_accesses")
+}
+
+enum ChildAccessRole {
+  VIEWER
+  CONTRIBUTOR
+}
+
+// ─── Child Invites ─────────────────────────────────────
+model ChildInvite {
+  id         String       @id @default(cuid())
+  email      String
+  role       ChildAccessRole @default(VIEWER)
+  status     InviteStatus @default(PENDING)
+  token      String       @unique
+  expiresAt  DateTime     @map("expires_at")
+  acceptedAt DateTime?    @map("accepted_at")
+  createdAt  DateTime     @default(now()) @map("created_at")
+
+  childId     String @map("child_id")
+  invitedById String @map("invited_by_id")
+  child       Child  @relation(fields: [childId], references: [id], onDelete: Cascade)
+  invitedBy   User   @relation("SentChildInvites", fields: [invitedById], references: [id], onDelete: Cascade)
+
+  @@unique([email, childId])
+  @@index([token])
+  @@index([email])
+  @@map("child_invites")
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  REVOKED
 }

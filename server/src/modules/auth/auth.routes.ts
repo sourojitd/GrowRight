@@ -10,6 +10,7 @@ import {
   logoutSchema,
   verifyChildInfoSchema,
   resetPasswordWithVerificationSchema,
+  resendVerificationSchema,
 } from './auth.schema';
 
 const router = Router();
@@ -60,6 +61,20 @@ router.get(
   '/me',
   authenticate,
   (req, res, next) => authController.getProfile(req, res, next)
+);
+
+// Email verification (GET — redirect from email link)
+router.get(
+  '/verify-email',
+  (req, res, next) => authController.verifyEmail(req, res, next)
+);
+
+// Resend verification email
+router.post(
+  '/resend-verification',
+  authLimiter,
+  validate({ body: resendVerificationSchema }),
+  (req, res, next) => authController.resendVerification(req, res, next)
 );
 
 export default router;

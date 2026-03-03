@@ -67,6 +67,30 @@ export class AuthController {
       next(error);
     }
   }
+
+  async verifyEmail(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { token } = req.query as { token?: string };
+      if (!token) return res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}/verify-email?error=missing-token`);
+      await authService.verifyEmail(token);
+      res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}/login?verified=true`);
+    } catch {
+      res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}/verify-email?error=invalid-or-expired`);
+    }
+  }
+
+  async resendVerification(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email } = req.body as { email: string };
+      await authService.resendVerification(email);
+      res.json({ success: true, message: 'If this email exists and is unverified, a new link has been sent.' });
+    } catch (err) {
+      if ((err as { code?: string }).code === 'RATE_LIMITED') {
+        return res.status(429).json({ success: false, error: 'Please wait a moment before requesting another email.' });
+      }
+      next(err);
+    }
+  }
 }
 
 export const authController = new AuthController();

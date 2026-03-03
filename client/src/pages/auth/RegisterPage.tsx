@@ -34,9 +34,8 @@ export default function RegisterPage() {
     setErrors({});
 
     try {
-      await register({ name, email, password });
-      toast.success('Account created!');
-      navigate('/dashboard');
+      const { email: registeredEmail } = await register({ name, email, password });
+      navigate(`/verify-email?email=${encodeURIComponent(registeredEmail)}`);
     } catch (err) {
       toast.error(getApiErrorMessage(err, 'Registration failed'));
     }

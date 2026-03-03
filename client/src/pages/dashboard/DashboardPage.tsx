@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Baby, Target, Sparkles, ArrowRight, Plus, TrendingUp, BookOpen } from 'lucide-react';
+import { Baby, Target, Sparkles, ArrowRight, Plus, BookOpen, Syringe } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 import { useChildren } from '@/hooks/useChildren';
 import { useMilestones } from '@/hooks/useMilestones';
+import { apiGet } from '@/lib/api';
 import Card from '@/components/ui/Card';
 import Progress from '@/components/ui/Progress';
 import Badge from '@/components/ui/Badge';
@@ -18,6 +20,13 @@ export default function DashboardPage() {
   const { user } = useAuth();
   const { children, selectedChild, isLoading, hasFetched } = useChildren();
   const { progress, summary } = useMilestones(selectedChild?.id);
+
+  const { data: vaccData } = useQuery({
+    queryKey: ['vaccinations', selectedChild?.id],
+    queryFn: () => apiGet<{ vaccinations: { isDue: boolean; isAdministered: boolean }[] }>(`/vaccinations/child/${selectedChild!.id}`),
+    enabled: !!selectedChild,
+    select: (d) => d.vaccinations.filter((v) => v.isDue && !v.isAdministered).length,
+  });
 
   if (!hasFetched || isLoading) return <PageSpinner />;
 
@@ -34,6 +43,7 @@ export default function DashboardPage() {
   }
 
   const isEarlyDev = !selectedChild || (selectedChild.ageMonths ?? 0) < 72;
+  const vaccinesDue = vaccData ?? 0;
 
   const greeting = () => {
     const hour = new Date().getHours();
@@ -83,17 +93,24 @@ export default function DashboardPage() {
               </div>
             </Card>
 
-            <Card variant="elevated" className="stat-card-orange flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-orange/20 to-accent-red/10 flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-accent-orange" />
-              </div>
-              <div>
-                <p className="text-caption text-text-tertiary">In Progress</p>
-                <p className="text-title text-text-primary">
-                  <AnimatedCounter target={summary?.inProgress || 0} />
-                </p>
-              </div>
-            </Card>
+            <Link to="/vaccinations" className="block">
+              <Card
+                variant="elevated"
+                interactive
+                className={`stat-card-orange flex items-center gap-4 h-full ${vaccinesDue > 0 ? 'border border-accent-orange/30' : ''}`}
+              >
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${vaccinesDue > 0 ? 'bg-gradient-to-br from-accent-orange/20 to-accent-red/10' : 'bg-gradient-to-br from-accent-orange/10 to-accent-yellow/10'}`}>
+                  <Syringe className={`w-6 h-6 ${vaccinesDue > 0 ? 'text-accent-orange' : 'text-accent-orange/60'}`} />
+                </div>
+                <div>
+                  <p className="text-caption text-text-tertiary">Vaccines Due</p>
+                  <p className={`text-title font-semibold ${vaccinesDue > 0 ? 'text-accent-orange' : 'text-text-primary'}`}>
+                    <AnimatedCounter target={vaccinesDue} />
+                    {vaccinesDue === 0 && <span className="text-body text-text-secondary font-normal"> — all clear</span>}
+                  </p>
+                </div>
+              </Card>
+            </Link>
           </>
         )}
 

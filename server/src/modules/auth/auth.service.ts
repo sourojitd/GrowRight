@@ -8,6 +8,9 @@ import { JwtPayload, UserRole } from '../../types';
 import { ConflictError, UnauthorizedError } from '../../middleware/errorHandler';
 import { RegisterInput, LoginInput } from './auth.schema';
 import { sanitizeUser } from '../../utils/helpers';
+import { createToken, verifyToken } from '../../services/token.service';
+import { sendEmail } from '../../services/email.service';
+import { verificationEmail } from '../../services/email-templates';
 
 class AuthService {
   async register(input: RegisterInput) {
@@ -20,13 +23,14 @@ class AuthService {
     // Hash password
     const passwordHash = await bcrypt.hash(input.password, config.BCRYPT_ROUNDS);
 
-    // Create user
+    // Create user (emailVerified = false until they click the link)
     const user = await prisma.user.create({
       data: {
         email: input.email,
         passwordHash,
         name: input.name,
         role: UserRole.PARENT,
+        emailVerified: false,
       },
     });
 
@@ -39,15 +43,50 @@ class AuthService {
       },
     });
 
-    // Generate tokens
-    const tokens = await this.generateTokens(user.id, user.email, user.role as UserRole);
+    // Claim any pending child invites for this email
+    await this.claimPendingInvites(user.email, user.id);
+
+    // Send verification email (fire-and-forget — don't block registration on email failure)
+    try {
+      const token = await createToken(user.id, 'EMAIL_VERIFY');
+      const { subject, html } = verificationEmail(user.name, token);
+      await sendEmail({ to: user.email, subject, html });
+    } catch (err) {
+      logger.warn('Could not send verification email', { userId: user.id, err });
+    }
 
     logger.info('User registered', { userId: user.id, email: user.email });
 
-    return {
-      user: sanitizeUser(user as unknown as Record<string, unknown>),
-      ...tokens,
-    };
+    return { message: 'Account created. Please check your email to verify your account.', email: user.email };
+  }
+
+  async claimPendingInvites(email: string, userId: string) {
+    const normalised = email.toLowerCase().trim();
+    const pending = await prisma.childInvite.findMany({
+      where: {
+        email: normalised,
+        status: 'PENDING',
+        expiresAt: { gt: new Date() },
+      },
+    });
+    if (pending.length === 0) return 0;
+
+    await prisma.$transaction([
+      prisma.childAccess.createMany({
+        data: pending.map((inv) => ({
+          userId,
+          childId: inv.childId,
+          role: inv.role,
+        })),
+        skipDuplicates: true,
+      }),
+      prisma.childInvite.updateMany({
+        where: { id: { in: pending.map((inv) => inv.id) } },
+        data: { status: 'ACCEPTED', acceptedAt: new Date() },
+      }),
+    ]);
+
+    return pending.length;
   }
 
   async login(input: LoginInput) {
@@ -63,6 +102,11 @@ class AuthService {
       throw new UnauthorizedError('Invalid email or password');
     }
 
+    // Block unverified users
+    if (!user.emailVerified) {
+      throw Object.assign(new UnauthorizedError('EMAIL_NOT_VERIFIED'), { code: 'EMAIL_NOT_VERIFIED' });
+    }
+
     // Generate tokens
     const tokens = await this.generateTokens(user.id, user.email, user.role as UserRole);
 
@@ -72,6 +116,37 @@ class AuthService {
       user: sanitizeUser(user as unknown as Record<string, unknown>),
       ...tokens,
     };
+  }
+
+  async verifyEmail(rawToken: string) {
+    const record = await verifyToken(rawToken, 'EMAIL_VERIFY');
+    if (!record) {
+      throw new UnauthorizedError('Invalid or expired verification link');
+    }
+
+    await prisma.user.update({
+      where: { id: record.userId },
+      data: { emailVerified: true, verifiedAt: new Date() },
+    });
+
+    logger.info('Email verified', { userId: record.userId });
+    return { verified: true };
+  }
+
+  async resendVerification(email: string) {
+    // Always return the same response to avoid user enumeration
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user || user.emailVerified) return;
+
+    try {
+      const token = await createToken(user.id, 'EMAIL_VERIFY');
+      const { subject, html } = verificationEmail(user.name, token);
+      await sendEmail({ to: user.email, subject, html });
+    } catch (err) {
+      // Re-throw rate-limit errors so the controller can return 429
+      if ((err as { code?: string }).code === 'RATE_LIMITED') throw err;
+      logger.warn('Could not resend verification email', { userId: user.id, err });
+    }
   }
 
   async refreshToken(token: string) {

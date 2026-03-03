@@ -4,6 +4,7 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.coerce.number().default(4000),
   CLIENT_URL: z.string().default('http://localhost:5173'),
+  SERVER_URL: z.string().default('http://localhost:4000'),
   API_VERSION: z.string().default('v1'),
 
   DATABASE_URL: z.string(),
@@ -23,6 +24,9 @@ const envSchema = z.object({
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
   EMAIL_FROM: z.string().default('noreply@growright.app'),
+
+  RESEND_API_KEY: z.string().optional(),
+  FROM_EMAIL: z.string().default('GrowRight <noreply@growright.app>'),
 
   AI_PROVIDER: z.enum(['none', 'openai', 'anthropic']).default('none'),
   AI_API_KEY: z.string().optional(),

@@ -20,6 +20,7 @@ import syllabusRoutes from './modules/syllabus/syllabus.routes';
 import roadmapRoutes from './modules/roadmap/roadmap.routes';
 import vaccinationsRoutes from './modules/vaccinations/vaccinations.routes';
 import adminRoutes from './modules/admin/admin.routes';
+import invitesRoutes from './modules/invites/invites.routes';
 
 const app = express();
 
@@ -78,6 +79,7 @@ app.use(`${apiPrefix}/syllabus`, syllabusRoutes);
 app.use(`${apiPrefix}/roadmaps`, roadmapRoutes);
 app.use(`${apiPrefix}/vaccinations`, vaccinationsRoutes);
 app.use(`${apiPrefix}/admin`, adminRoutes);
+app.use(`${apiPrefix}`, invitesRoutes);
 
 // ─── Error Handling ───────────────────────────────────
 app.use(notFoundHandler);

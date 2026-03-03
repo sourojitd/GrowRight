@@ -1,8 +1,9 @@
 import { useState, FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { CheckCircle, Mail } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
-import { getApiErrorMessage } from '@/lib/api';
+import { api, getApiErrorMessage } from '@/lib/api';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import SEO from '@/components/shared/SEO';
@@ -10,14 +11,20 @@ import toast from 'react-hot-toast';
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const justVerified = searchParams.get('verified') === 'true';
+
   const { login, isLoading } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [unverified, setUnverified] = useState(false);
+  const [resending, setResending] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setErrors({});
+    setUnverified(false);
 
     if (!email) return setErrors({ email: 'Email is required' });
     if (!password) return setErrors({ password: 'Password is required' });
@@ -27,7 +34,24 @@ export default function LoginPage() {
       toast.success('Welcome back!');
       navigate('/dashboard');
     } catch (err) {
-      toast.error(getApiErrorMessage(err, 'Login failed'));
+      const msg = getApiErrorMessage(err, 'Login failed');
+      if (msg === 'EMAIL_NOT_VERIFIED') {
+        setUnverified(true);
+      } else {
+        toast.error(msg);
+      }
+    }
+  };
+
+  const handleResend = async () => {
+    setResending(true);
+    try {
+      await api.post('/auth/resend-verification', { email });
+      toast.success('Verification email sent — check your inbox');
+    } catch {
+      toast.error('Could not resend. Please try again later.');
+    } finally {
+      setResending(false);
     }
   };
 
@@ -65,6 +89,18 @@ export default function LoginPage() {
           </motion.p>
         </div>
 
+        {/* Email verified banner */}
+        {justVerified && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 flex items-center gap-3 p-4 rounded-xl bg-accent-green/10 border border-accent-green/20"
+          >
+            <CheckCircle className="w-5 h-5 text-accent-green flex-shrink-0" />
+            <p className="text-subhead text-accent-green font-medium">Email verified! You can now sign in.</p>
+          </motion.div>
+        )}
+
         {/* Form */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -73,6 +109,34 @@ export default function LoginPage() {
           className="glass-card rounded-2xl shadow-card-elevated p-8"
         >
           <h2 className="text-title text-text-primary mb-6">Sign in</h2>
+
+          {/* Unverified email notice */}
+          {unverified && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.97 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mb-5 p-4 rounded-xl bg-accent-orange/10 border border-accent-orange/20"
+            >
+              <div className="flex items-start gap-3">
+                <Mail className="w-5 h-5 text-accent-orange flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-subhead font-medium text-accent-orange">Email not verified</p>
+                  <p className="text-caption text-text-secondary mt-1">
+                    Please check your inbox and click the verification link before signing in.
+                  </p>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="mt-3"
+                    isLoading={resending}
+                    onClick={handleResend}
+                  >
+                    Resend verification email
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <Input

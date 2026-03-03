@@ -5,6 +5,8 @@ import LandingPage from '@/pages/landing/LandingPage';
 import LoginPage from '@/pages/auth/LoginPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
 import ForgotPasswordPage from '@/pages/auth/ForgotPasswordPage';
+import VerifyEmailPage from '@/pages/auth/VerifyEmailPage';
+import AcceptInvitePage from '@/pages/invite/AcceptInvitePage';
 import DashboardPage from '@/pages/dashboard/DashboardPage';
 import ChildrenPage from '@/pages/children/ChildrenPage';
 import ChildProfilePage from '@/pages/children/ChildProfilePage';
@@ -53,6 +55,10 @@ export default function App() {
       <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
       <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
       <Route path="/forgot-password" element={<GuestRoute><ForgotPasswordPage /></GuestRoute>} />
+      {/* Email verification — accessible to all (GuestRoute blocks after login) */}
+      <Route path="/verify-email" element={<VerifyEmailPage />} />
+      {/* Accept invite — accessible to authenticated users only */}
+      <Route path="/accept-invite" element={<ProtectedRoute><AcceptInvitePage /></ProtectedRoute>} />
 
       {/* Protected routes */}
       <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
