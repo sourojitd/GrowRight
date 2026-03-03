@@ -43,8 +43,10 @@ class AuthService {
       },
     });
 
-    // Claim any pending child invites for this email
-    await this.claimPendingInvites(user.email, user.id);
+    // Claim any pending child invites for this email (non-critical — don't block registration)
+    this.claimPendingInvites(user.email, user.id).catch((err) => {
+      logger.warn('Could not claim pending invites on register', { userId: user.id, err });
+    });
 
     // Send verification email (fire-and-forget — don't block registration on email failure)
     try {

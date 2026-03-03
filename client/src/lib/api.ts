@@ -41,7 +41,9 @@ api.interceptors.response.use(
   async (error: AxiosError<ApiResponse<unknown>>) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Don't intercept 401s on auth endpoints — they're intentional (wrong credentials, unverified email, etc.)
+    const isAuthEndpoint = originalRequest.url?.startsWith('/auth/');
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({
