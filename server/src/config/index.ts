@@ -23,10 +23,10 @@ const envSchema = z.object({
   SMTP_PORT: z.coerce.number().optional(),
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
-  EMAIL_FROM: z.string().default('noreply@growright.app'),
+  EMAIL_FROM: z.string().default('noreply@growright.sourojit.com'),
 
   RESEND_API_KEY: z.string().optional(),
-  FROM_EMAIL: z.string().default('GrowRight <noreply@growright.app>'),
+  FROM_EMAIL: z.string().default('GrowRight <noreply@growright.sourojit.com>'),
 
   AI_PROVIDER: z.enum(['none', 'openai', 'anthropic']).default('none'),
   AI_API_KEY: z.string().optional(),
