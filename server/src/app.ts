@@ -24,6 +24,9 @@ import invitesRoutes from './modules/invites/invites.routes';
 
 const app = express();
 
+// Trust Railway/Nginx proxy (needed for rate limiting and IP detection)
+app.set('trust proxy', 1);
+
 // ─── Security ─────────────────────────────────────────
 app.use(helmet());
 app.use(
