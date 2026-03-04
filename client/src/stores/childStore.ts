@@ -24,6 +24,7 @@ interface ChildState {
   selectedChild: Child | null;
   isLoading: boolean;
   hasFetched: boolean;
+  _fetchGen: number;
   fetchChildren: () => Promise<void>;
   selectChild: (child: Child | null) => void;
   addChild: (data: { name: string; dateOfBirth: string; gender?: string; notes?: string }) => Promise<Child>;
@@ -36,11 +37,17 @@ export const useChildStore = create<ChildState>((set, get) => ({
   selectedChild: getPersistedChild(),
   isLoading: false,
   hasFetched: false,
+  _fetchGen: 0,
 
   fetchChildren: async () => {
+    const gen = get()._fetchGen;
     set({ isLoading: true });
     try {
       const children = await apiGet<Child[]>('/children');
+
+      // Discard result if a logout/reset happened while this fetch was in flight
+      if (get()._fetchGen !== gen) return;
+
       const current = get().selectedChild;
 
       // Revalidate persisted child against fresh data, or auto-select first
@@ -55,6 +62,7 @@ export const useChildStore = create<ChildState>((set, get) => ({
       persistChild(selected);
       set({ children, selectedChild: selected, isLoading: false, hasFetched: true });
     } catch {
+      if (get()._fetchGen !== gen) return;
       set({ isLoading: false, hasFetched: true });
     }
   },
