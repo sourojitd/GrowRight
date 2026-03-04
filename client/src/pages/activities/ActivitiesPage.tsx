@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Clock, Package, Check, Star } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiGet, apiPost } from '@/lib/api';
@@ -187,6 +187,27 @@ export default function ActivitiesPage() {
           description="Try selecting a different category."
         />
       )}
+
+      {/* Floating Status Pill */}
+      <AnimatePresence>
+        {activities.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: 10, x: '-50%' }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            className="status-pill-border fixed bottom-6 left-1/2 z-50 rounded-full"
+          >
+            <div className="flex items-center gap-2 rounded-full px-4 py-2 glass shadow-lg">
+              <Sparkles className="w-3.5 h-3.5 text-accent-purple shrink-0" />
+              <span className="text-caption font-semibold text-text-primary tabular-nums whitespace-nowrap">
+                {activities.filter((a) => 'isCompleted' in a && a.isCompleted).length}
+                <span className="font-normal text-text-secondary"> of {activities.length} completed</span>
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </StaggerContainer>
   );
 }

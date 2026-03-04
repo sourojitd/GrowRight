@@ -16,6 +16,7 @@ import {
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import SEO from '@/components/shared/SEO';
+import AnimatedBackground from '@/components/shared/AnimatedBackground';
 
 /* ------------------------------------------------------------------ */
 /*  Animation helpers                                                  */
@@ -140,14 +141,11 @@ export default function LandingPage() {
         path="/"
       />
 
-      <div className="min-h-screen bg-surface-primary overflow-hidden">
+      <div className="min-h-screen overflow-hidden relative">
+        <AnimatedBackground />
+
         {/* ── Hero ── */}
         <header className="relative min-h-[90vh] flex items-center justify-center px-4">
-          {/* Floating gradient orbs */}
-          <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] gradient-orb bg-accent-blue/20 animate-float" />
-          <div className="absolute bottom-[-15%] right-[-5%] w-[400px] h-[400px] gradient-orb bg-accent-purple/20 animate-float-slow" />
-          <div className="absolute top-[40%] right-[20%] w-[300px] h-[300px] gradient-orb bg-accent-teal/15 animate-float-fast" />
-
           <div className="relative z-10 max-w-3xl mx-auto text-center">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}

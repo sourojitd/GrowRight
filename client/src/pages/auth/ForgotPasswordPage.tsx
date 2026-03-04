@@ -6,6 +6,7 @@ import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
 import Button from '@/components/ui/Button';
 import SEO from '@/components/shared/SEO';
+import AnimatedBackground from '@/components/shared/AnimatedBackground';
 import toast from 'react-hot-toast';
 
 type Step = 'email' | 'verify' | 'reset';
@@ -89,12 +90,9 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-surface-primary flex items-center justify-center px-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
       <SEO title="Reset Password" description="Reset your GrowRight account password." path="/forgot-password" />
-      {/* Floating gradient orbs */}
-      <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] gradient-orb bg-accent-teal/20 animate-float" />
-      <div className="absolute bottom-[-15%] left-[-5%] w-[400px] h-[400px] gradient-orb bg-accent-purple/20 animate-float-slow" />
-      <div className="absolute top-[40%] left-[15%] w-[300px] h-[300px] gradient-orb bg-accent-blue/15 animate-float-fast" />
+      <AnimatedBackground />
 
       <motion.div
         initial={{ opacity: 0, y: 30 }}

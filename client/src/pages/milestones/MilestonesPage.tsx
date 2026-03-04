@@ -139,6 +139,27 @@ export default function MilestonesPage() {
         })}
       </div>
 
+      {/* Floating Status Pill */}
+      <AnimatePresence>
+        {summary && summary.total > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: 10, x: '-50%' }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            className="status-pill-border fixed bottom-6 left-1/2 z-50 rounded-full"
+          >
+            <div className="flex items-center gap-2 rounded-full px-4 py-2 glass shadow-lg">
+              <Target className="w-3.5 h-3.5 text-accent-blue shrink-0" />
+              <span className="text-caption font-semibold text-text-primary tabular-nums whitespace-nowrap">
+                {summary.achieved}
+                <span className="font-normal text-text-secondary"> of {summary.total} achieved</span>
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Milestone List */}
       <div className="space-y-3">
         <AnimatePresence mode="popLayout">

@@ -81,6 +81,10 @@ export default {
         'float-fast': 'float 6s ease-in-out infinite',
         'breathe': 'breathe 4s ease-in-out infinite',
         'scale-in': 'scaleIn 0.3s ease-out',
+        'orb-1': 'orb1 16s ease-in-out infinite',
+        'orb-2': 'orb2 20s ease-in-out infinite',
+        'orb-3': 'orb3 14s ease-in-out infinite',
+        'orb-4': 'orb4 18s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -118,6 +122,30 @@ export default {
         scaleIn: {
           '0%': { opacity: '0', transform: 'scale(0.95)' },
           '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+        orb1: {
+          '0%, 100%': { transform: 'translate(0, 0) scale(1)', backgroundColor: '#0071E3' },
+          '25%': { transform: 'translate(4%, 6%) scale(1.08)', backgroundColor: '#AF52DE' },
+          '50%': { transform: 'translate(-3%, 3%) scale(0.95)', backgroundColor: '#5AC8FA' },
+          '75%': { transform: 'translate(5%, -4%) scale(1.04)', backgroundColor: '#0071E3' },
+        },
+        orb2: {
+          '0%, 100%': { transform: 'translate(0, 0) scale(1)', backgroundColor: '#AF52DE' },
+          '25%': { transform: 'translate(-5%, -3%) scale(1.06)', backgroundColor: '#5AC8FA' },
+          '50%': { transform: 'translate(4%, -5%) scale(0.97)', backgroundColor: '#34C759' },
+          '75%': { transform: 'translate(-3%, 4%) scale(1.03)', backgroundColor: '#AF52DE' },
+        },
+        orb3: {
+          '0%, 100%': { transform: 'translate(0, 0) scale(1)', backgroundColor: '#5AC8FA' },
+          '25%': { transform: 'translate(5%, 4%) scale(1.05)', backgroundColor: '#34C759' },
+          '50%': { transform: 'translate(-4%, -3%) scale(0.96)', backgroundColor: '#0071E3' },
+          '75%': { transform: 'translate(3%, -5%) scale(1.07)', backgroundColor: '#5AC8FA' },
+        },
+        orb4: {
+          '0%, 100%': { transform: 'translate(0, 0) scale(1)', backgroundColor: '#34C759' },
+          '25%': { transform: 'translate(-4%, 5%) scale(1.04)', backgroundColor: '#0071E3' },
+          '50%': { transform: 'translate(3%, 4%) scale(0.98)', backgroundColor: '#AF52DE' },
+          '75%': { transform: 'translate(-5%, -3%) scale(1.06)', backgroundColor: '#34C759' },
         },
       },
     },
