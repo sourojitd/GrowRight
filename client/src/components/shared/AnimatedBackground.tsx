@@ -14,8 +14,8 @@ export default function AnimatedBackground() {
       <div className="absolute top-[35%] right-[15%] w-[35vw] max-w-[380px] aspect-square rounded-full blur-[70px] opacity-[0.25] animate-orb-3 bg-[#5AC8FA]" />
       <div className="absolute bottom-[25%] left-[10%] w-[30vw] max-w-[320px] aspect-square rounded-full blur-[60px] opacity-[0.22] animate-orb-4 bg-[#34C759]" />
 
-      {/* Glassmorphism mesh — very light so orbs show through */}
-      <div className="absolute inset-0 bg-white/20 backdrop-blur-[2px]" />
+      {/* Light veil to soften the orbs */}
+      <div className="absolute inset-0 bg-white/20" />
     </div>
   );
 }
