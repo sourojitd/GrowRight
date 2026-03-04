@@ -31,6 +31,7 @@ class UsersService {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundError('User');
 
+    if (!user.passwordHash) throw new AppError(400, 'This account uses social login and has no password to change');
     const isValid = await bcrypt.compare(currentPassword, user.passwordHash);
     if (!isValid) throw new AppError(400, 'Current password is incorrect');
 
