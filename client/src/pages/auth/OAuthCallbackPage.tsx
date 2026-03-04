@@ -22,7 +22,7 @@ export default function OAuthCallbackPage() {
     localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
     localStorage.removeItem('selectedChild');
-    useChildStore.setState((s) => ({ children: [], selectedChild: null, hasFetched: false, isLoading: false, _fetchGen: s._fetchGen + 1 }));
+    useChildStore.setState((s) => ({ children: [], selectedChild: null, fetchedForUserId: null, isLoading: false, _fetchGen: s._fetchGen + 1 }));
 
     fetchProfile().then(() => {
       navigate('/dashboard', { replace: true });

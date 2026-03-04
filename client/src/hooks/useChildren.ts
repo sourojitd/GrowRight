@@ -1,14 +1,20 @@
 import { useEffect } from 'react';
 import { useChildStore } from '@/stores/childStore';
+import { useAuthStore } from '@/stores/authStore';
 
 export function useChildren() {
   const store = useChildStore();
+  const { user } = useAuthStore();
 
   useEffect(() => {
-    if (!store.hasFetched && !store.isLoading) {
-      store.fetchChildren();
+    if (!user?.id) return;
+    if (store.fetchedForUserId !== user.id && !store.isLoading) {
+      store.fetchChildren(user.id);
     }
-  }, [store.hasFetched, store.isLoading, store.fetchChildren]);
+  }, [user?.id, store.fetchedForUserId, store.isLoading, store.fetchChildren]);
 
-  return store;
+  // hasFetched is true only when we have data for the currently logged-in user
+  const hasFetched = store.fetchedForUserId === user?.id;
+
+  return { ...store, hasFetched };
 }

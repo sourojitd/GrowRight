@@ -61,7 +61,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('selectedChild');
-      useChildStore.setState((s) => ({ children: [], selectedChild: null, hasFetched: false, isLoading: false, _fetchGen: s._fetchGen + 1 }));
+      useChildStore.setState((s) => ({ children: [], selectedChild: null, fetchedForUserId: null, isLoading: false, _fetchGen: s._fetchGen + 1 }));
       set({ user: null, isAuthenticated: false });
     }
   },

@@ -23,9 +23,9 @@ interface ChildState {
   children: Child[];
   selectedChild: Child | null;
   isLoading: boolean;
-  hasFetched: boolean;
+  fetchedForUserId: string | null;
   _fetchGen: number;
-  fetchChildren: () => Promise<void>;
+  fetchChildren: (userId: string) => Promise<void>;
   selectChild: (child: Child | null) => void;
   addChild: (data: { name: string; dateOfBirth: string; gender?: string; notes?: string }) => Promise<Child>;
   updateChild: (childId: string, data: Partial<Child>) => Promise<void>;
@@ -36,21 +36,19 @@ export const useChildStore = create<ChildState>((set, get) => ({
   children: [],
   selectedChild: getPersistedChild(),
   isLoading: false,
-  hasFetched: false,
+  fetchedForUserId: null,
   _fetchGen: 0,
 
-  fetchChildren: async () => {
+  fetchChildren: async (userId: string) => {
     const gen = get()._fetchGen;
     set({ isLoading: true });
     try {
       const children = await apiGet<Child[]>('/children');
 
-      // Discard result if a logout/reset happened while this fetch was in flight
+      // Discard if a user switch happened while this fetch was in flight
       if (get()._fetchGen !== gen) return;
 
       const current = get().selectedChild;
-
-      // Revalidate persisted child against fresh data, or auto-select first
       let selected: Child | null = null;
       if (current) {
         selected = children.find((c) => c.id === current.id) || null;
@@ -60,10 +58,10 @@ export const useChildStore = create<ChildState>((set, get) => ({
       }
 
       persistChild(selected);
-      set({ children, selectedChild: selected, isLoading: false, hasFetched: true });
+      set({ children, selectedChild: selected, isLoading: false, fetchedForUserId: userId });
     } catch {
       if (get()._fetchGen !== gen) return;
-      set({ isLoading: false, hasFetched: true });
+      set({ isLoading: false, fetchedForUserId: userId });
     }
   },
 
