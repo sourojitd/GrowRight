@@ -7,6 +7,7 @@ import RegisterPage from '@/pages/auth/RegisterPage';
 import ForgotPasswordPage from '@/pages/auth/ForgotPasswordPage';
 import VerifyEmailPage from '@/pages/auth/VerifyEmailPage';
 import AcceptInvitePage from '@/pages/invite/AcceptInvitePage';
+import OAuthCallbackPage from '@/pages/auth/OAuthCallbackPage';
 import DashboardPage from '@/pages/dashboard/DashboardPage';
 import ChildrenPage from '@/pages/children/ChildrenPage';
 import ChildProfilePage from '@/pages/children/ChildProfilePage';
@@ -57,6 +58,8 @@ export default function App() {
       <Route path="/forgot-password" element={<GuestRoute><ForgotPasswordPage /></GuestRoute>} />
       {/* Email verification — accessible to all (GuestRoute blocks after login) */}
       <Route path="/verify-email" element={<VerifyEmailPage />} />
+      {/* OAuth callback — no guard, processes tokens then redirects */}
+      <Route path="/auth/callback" element={<OAuthCallbackPage />} />
       {/* Accept invite — accessible to authenticated users only */}
       <Route path="/accept-invite" element={<ProtectedRoute><AcceptInvitePage /></ProtectedRoute>} />
 

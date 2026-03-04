@@ -35,6 +35,11 @@ const envSchema = z.object({
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).default('debug'),
   LOG_FORMAT: z.enum(['json', 'pretty']).default('pretty'),
 
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  GITHUB_CLIENT_ID: z.string().optional(),
+  GITHUB_CLIENT_SECRET: z.string().optional(),
+
   ENABLE_AI_ROADMAP: z.coerce.boolean().default(false),
   ENABLE_SUBSCRIPTION_BILLING: z.coerce.boolean().default(false),
 });

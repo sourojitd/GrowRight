@@ -11,7 +11,7 @@ function getResend(): Resend | null {
   return _resend;
 }
 
-// ─── Nodemailer (lazy) ────────────────────────────────
+// ─── Nodemailer / SMTP (lazy) ─────────────────────────
 let _transporter: nodemailer.Transporter | null = null;
 function getTransporter(): nodemailer.Transporter | null {
   if (!config.SMTP_HOST || !config.SMTP_USER || !config.SMTP_PASS) return null;
@@ -26,6 +26,13 @@ function getTransporter(): nodemailer.Transporter | null {
   return _transporter;
 }
 
+async function sendViaSMTP(to: string, subject: string, html: string): Promise<void> {
+  const transporter = getTransporter();
+  if (!transporter) throw new Error('SMTP not configured');
+  await transporter.sendMail({ from: config.FROM_EMAIL, to, subject, html });
+  logger.info('Email sent via SMTP', { to, subject });
+}
+
 export async function sendEmail({
   to,
   subject,
@@ -35,7 +42,7 @@ export async function sendEmail({
   subject: string;
   html: string;
 }) {
-  // 1. Try Resend
+  // 1. Try Resend — if it fails, fall through to SMTP
   const resend = getResend();
   if (resend) {
     const { error } = await resend.emails.send({
@@ -44,24 +51,29 @@ export async function sendEmail({
       subject,
       html,
     });
-    if (error) {
-      logger.error('Failed to send email via Resend', { to, subject, error });
-      throw new Error(`Email send failed: ${error.message}`);
+
+    if (!error) {
+      logger.info('Email sent via Resend', { to, subject });
+      return;
     }
-    logger.info('Email sent via Resend', { to, subject });
-    return;
+
+    // Resend failed — log warning and try SMTP fallback
+    logger.warn('Resend failed, falling back to SMTP', { to, subject, error });
+    const transporter = getTransporter();
+    if (transporter) {
+      await sendViaSMTP(to, subject, html);
+      return;
+    }
+
+    // No SMTP either — throw
+    logger.error('Failed to send email via Resend (no SMTP fallback)', { to, subject, error });
+    throw new Error(`Email send failed: ${error.message}`);
   }
 
-  // 2. Fall back to SMTP / nodemailer
+  // 2. No Resend — try SMTP directly
   const transporter = getTransporter();
   if (transporter) {
-    await transporter.sendMail({
-      from: config.FROM_EMAIL,
-      to,
-      subject,
-      html,
-    });
-    logger.info('Email sent via SMTP', { to, subject });
+    await sendViaSMTP(to, subject, html);
     return;
   }
 

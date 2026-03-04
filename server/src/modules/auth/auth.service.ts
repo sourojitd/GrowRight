@@ -98,6 +98,11 @@ class AuthService {
       throw new UnauthorizedError('Invalid email or password');
     }
 
+    // OAuth-only accounts have no password
+    if (!user.passwordHash) {
+      throw new UnauthorizedError('This account uses social login. Please sign in with Google or GitHub.');
+    }
+
     // Verify password
     const isValid = await bcrypt.compare(input.password, user.passwordHash);
     if (!isValid) {
@@ -261,9 +266,9 @@ class AuthService {
     return { success: true };
   }
 
-  // ─── Private ────────────────────────────────────────
+  // ─── Token helpers (also used by OAuth) ─────────────
 
-  private async generateTokens(userId: string, email: string, role: UserRole) {
+  async generateTokens(userId: string, email: string, role: UserRole) {
     const payload: JwtPayload = { userId, email, role };
 
     const accessToken = jwt.sign(payload, config.JWT_ACCESS_SECRET, {

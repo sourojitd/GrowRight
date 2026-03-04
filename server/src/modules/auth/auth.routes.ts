@@ -1,6 +1,9 @@
 import { Router } from 'express';
 import { authController } from './auth.controller';
 import { authenticate } from '../../middleware/auth';
+import { getGoogleAuthUrl, handleGoogleCallback, getGithubAuthUrl, handleGithubCallback } from './oauth.service';
+import { config } from '../../config';
+import { logger } from '../../config/logger';
 import { validate } from '../../middleware/validate';
 import { authLimiter } from '../../middleware/rateLimiter';
 import {
@@ -76,5 +79,52 @@ router.post(
   validate({ body: resendVerificationSchema }),
   (req, res, next) => authController.resendVerification(req, res, next)
 );
+
+// ─── OAuth ────────────────────────────────────────────
+
+const oauthRedirect = (error?: string) =>
+  `${config.CLIENT_URL}/auth/callback?error=${error ?? 'oauth_failed'}`;
+
+// Google
+router.get('/google', (req, res) => {
+  if (!config.GOOGLE_CLIENT_ID || !config.GOOGLE_CLIENT_SECRET) {
+    return res.redirect(oauthRedirect('provider_not_configured'));
+  }
+  res.redirect(getGoogleAuthUrl());
+});
+
+router.get('/google/callback', async (req, res) => {
+  const code = req.query.code as string | undefined;
+  if (!code) return res.redirect(oauthRedirect());
+  try {
+    const { accessToken, refreshToken } = await handleGoogleCallback(code);
+    const params = new URLSearchParams({ accessToken, refreshToken });
+    res.redirect(`${config.CLIENT_URL}/auth/callback?${params}`);
+  } catch (err) {
+    logger.error('Google OAuth callback failed', { err });
+    res.redirect(oauthRedirect());
+  }
+});
+
+// GitHub
+router.get('/github', (req, res) => {
+  if (!config.GITHUB_CLIENT_ID || !config.GITHUB_CLIENT_SECRET) {
+    return res.redirect(oauthRedirect('provider_not_configured'));
+  }
+  res.redirect(getGithubAuthUrl());
+});
+
+router.get('/github/callback', async (req, res) => {
+  const code = req.query.code as string | undefined;
+  if (!code) return res.redirect(oauthRedirect());
+  try {
+    const { accessToken, refreshToken } = await handleGithubCallback(code);
+    const params = new URLSearchParams({ accessToken, refreshToken });
+    res.redirect(`${config.CLIENT_URL}/auth/callback?${params}`);
+  } catch (err) {
+    logger.error('GitHub OAuth callback failed', { err });
+    res.redirect(oauthRedirect());
+  }
+});
 
 export default router;
