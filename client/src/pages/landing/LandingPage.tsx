@@ -141,8 +141,9 @@ export default function LandingPage() {
         path="/"
       />
 
-      <div className="min-h-screen overflow-hidden relative">
+      <div className="min-h-screen overflow-hidden">
         <AnimatedBackground />
+        <div className="relative z-10">
 
         {/* ── Hero ── */}
         <header className="relative min-h-[90vh] flex items-center justify-center px-4">
@@ -321,6 +322,7 @@ export default function LandingPage() {
             </p>
           </div>
         </footer>
+        </div>
       </div>
     </>
   );
