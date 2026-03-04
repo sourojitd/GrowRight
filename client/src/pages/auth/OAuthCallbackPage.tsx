@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
+import { useChildStore } from '@/stores/childStore';
 import Spinner from '@/components/ui/Spinner';
 
 export default function OAuthCallbackPage() {
@@ -20,6 +21,8 @@ export default function OAuthCallbackPage() {
 
     localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
+    localStorage.removeItem('selectedChild');
+    useChildStore.setState({ children: [], selectedChild: null, hasFetched: false, isLoading: false });
 
     fetchProfile().then(() => {
       navigate('/dashboard', { replace: true });

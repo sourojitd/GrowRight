@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { api } from '@/lib/api';
 import type { User, LoginCredentials, RegisterCredentials, AuthResponse } from '@/types';
+import { useChildStore } from './childStore';
 
 interface AuthState {
   user: User | null;
@@ -59,6 +60,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     } finally {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
+      localStorage.removeItem('selectedChild');
+      useChildStore.setState({ children: [], selectedChild: null, hasFetched: false, isLoading: false });
       set({ user: null, isAuthenticated: false });
     }
   },
