@@ -59,7 +59,7 @@ function AnimatedCounter({ value, label }: { value: string; label: string }) {
       className="text-center"
     >
       <p className="text-display font-bold text-gradient">{value}</p>
-      <p className="text-subhead text-text-secondary mt-1">{label}</p>
+      <p className="text-subhead text-text-primary/60 mt-1">{label}</p>
     </motion.div>
   );
 }
@@ -163,7 +163,7 @@ export default function LandingPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="text-body text-text-secondary mt-6 max-w-xl mx-auto leading-relaxed"
+              className="text-body text-text-primary/70 mt-6 max-w-xl mx-auto leading-relaxed"
             >
               GrowRight is a free baby development app that helps parents track milestones, activities, vaccinations, and compare school syllabi — all in one place.
             </motion.p>
@@ -194,7 +194,7 @@ export default function LandingPage() {
             <h2 className="text-display-sm font-bold text-text-primary">
               Everything You Need to Support Your Child's Growth
             </h2>
-            <p className="text-body text-text-secondary mt-4 max-w-2xl mx-auto">
+            <p className="text-body text-text-primary/60 mt-4 max-w-2xl mx-auto">
               From milestone tracking to syllabus comparison, GrowRight gives you the tools to nurture your child's development with confidence.
             </p>
           </motion.div>
@@ -205,7 +205,7 @@ export default function LandingPage() {
                 <Card variant="gradient-border" interactive padding="lg" className="h-full">
                   <feature.icon className={`w-8 h-8 ${feature.color} mb-4`} />
                   <h3 className="text-headline font-semibold text-text-primary mb-2">{feature.title}</h3>
-                  <p className="text-subhead text-text-secondary leading-relaxed">{feature.description}</p>
+                  <p className="text-subhead text-text-primary/60 leading-relaxed">{feature.description}</p>
                 </Card>
               </motion.div>
             ))}
@@ -213,11 +213,11 @@ export default function LandingPage() {
         </AnimatedSection>
 
         {/* ── How It Works ── */}
-        <AnimatedSection className="bg-surface-secondary py-24">
+        <AnimatedSection className="relative bg-white/60 py-24">
           <div className="max-w-4xl mx-auto px-4">
             <motion.div variants={fadeUp} className="text-center mb-16">
               <h2 className="text-display-sm font-bold text-text-primary">How It Works</h2>
-              <p className="text-body text-text-secondary mt-4">
+              <p className="text-body text-text-primary/60 mt-4">
                 Get started in minutes — no complex setup required.
               </p>
             </motion.div>
@@ -230,7 +230,7 @@ export default function LandingPage() {
                       <span className="relative z-10 text-white font-bold text-body">{step.step}</span>
                     </div>
                     <h3 className="text-headline font-semibold text-text-primary mb-2">{step.title}</h3>
-                    <p className="text-subhead text-text-secondary leading-relaxed">{step.description}</p>
+                    <p className="text-subhead text-text-primary/60 leading-relaxed">{step.description}</p>
                   </Card>
                 </motion.div>
               ))}
@@ -249,13 +249,13 @@ export default function LandingPage() {
         </AnimatedSection>
 
         {/* ── SEO Content Block ── */}
-        <AnimatedSection className="bg-surface-secondary py-24">
+        <AnimatedSection className="relative bg-white/60 py-24">
           <div className="max-w-3xl mx-auto px-4">
             <motion.div variants={fadeUp}>
               <h2 className="text-display-sm font-bold text-text-primary mb-6">
                 Why Parents Choose GrowRight as Their Child Development Tracker
               </h2>
-              <div className="space-y-5 text-body text-text-secondary leading-relaxed">
+              <div className="space-y-5 text-body text-text-primary/70 leading-relaxed">
                 <p>
                   Every child grows at their own pace, but knowing what to expect at each stage makes all the difference. GrowRight is a <strong>child milestone tracker</strong> designed for parents of children aged 0 to 5 years. It covers over 175 developmental milestones across five key areas — cognitive, motor, language, social-emotional, and self-care — so you can celebrate every achievement and spot areas that may need extra attention.
                 </p>
@@ -302,21 +302,21 @@ export default function LandingPage() {
         </section>
 
         {/* ── Footer ── */}
-        <footer className="bg-surface-primary border-t border-border-light py-10">
+        <footer className="relative bg-white/70 border-t border-border-light py-10">
           <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <span className="text-headline font-bold">
                 <span className="text-gradient">Grow</span><span className="text-gradient-blue">Right</span>
               </span>
-              <span className="text-caption text-text-tertiary">— Child Development Tracker</span>
+              <span className="text-caption text-text-primary/50">— Child Development Tracker</span>
             </div>
 
-            <nav className="flex items-center gap-6 text-subhead text-text-secondary">
+            <nav className="flex items-center gap-6 text-subhead text-text-primary/70">
               <Link to="/login" className="hover:text-text-primary transition-colors">Sign In</Link>
               <Link to="/register" className="hover:text-text-primary transition-colors">Register</Link>
             </nav>
 
-            <p className="text-caption text-text-tertiary">
+            <p className="text-caption text-text-primary/50">
               &copy; {new Date().getFullYear()} GrowRight. All rights reserved.
             </p>
           </div>
