@@ -3,15 +3,16 @@ import jwt from 'jsonwebtoken';
 import { config } from '../config';
 import { AuthenticatedRequest, JwtPayload, UserRole } from '../types';
 import { UnauthorizedError, ForbiddenError } from './errorHandler';
+import { isTokenBlacklisted } from '../services/tokenBlacklist.service';
 
 /**
  * Authenticate JWT access token from Authorization header.
  */
-export function authenticate(
+export async function authenticate(
   req: AuthenticatedRequest,
   _res: Response,
   next: NextFunction
-): void {
+): Promise<void> {
   try {
     const authHeader = req.headers.authorization;
 
@@ -21,6 +22,11 @@ export function authenticate(
 
     const token = authHeader.slice(7);
     const decoded = jwt.verify(token, config.JWT_ACCESS_SECRET) as JwtPayload;
+
+    // Check if token has been blacklisted (e.g. after logout)
+    if (await isTokenBlacklisted(token)) {
+      throw new UnauthorizedError('Token revoked');
+    }
 
     req.user = decoded;
     next();

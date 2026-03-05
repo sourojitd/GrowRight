@@ -1,13 +1,43 @@
+import crypto from 'crypto';
 import { prisma } from '../../config/database';
 import { config } from '../../config';
 import { logger } from '../../config/logger';
 import { UserRole } from '../../types';
 import { sanitizeUser } from '../../utils/helpers';
 import { authService } from './auth.service';
+import { audit } from '../../services/audit.service';
+
+// ─── OAuth State (CSRF protection) ──────────────────────────────────────────
+
+const pendingStates = new Map<string, number>();
+
+const STATE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+
+export function generateOAuthState(): string {
+  const state = crypto.randomBytes(32).toString('hex');
+  pendingStates.set(state, Date.now());
+
+  // Cleanup expired states lazily
+  if (pendingStates.size > 100) {
+    const now = Date.now();
+    for (const [key, ts] of pendingStates) {
+      if (now - ts > STATE_TTL_MS) pendingStates.delete(key);
+    }
+  }
+
+  return state;
+}
+
+export function validateOAuthState(state: string | undefined): boolean {
+  if (!state || !pendingStates.has(state)) return false;
+  const ts = pendingStates.get(state)!;
+  pendingStates.delete(state);
+  return Date.now() - ts < STATE_TTL_MS;
+}
 
 // ─── Google ────────────────────────────────────────────────────────────────
 
-export function getGoogleAuthUrl(): string {
+export function getGoogleAuthUrl(state: string): string {
   const params = new URLSearchParams({
     client_id: config.GOOGLE_CLIENT_ID!,
     redirect_uri: `${config.SERVER_URL}/api/${config.API_VERSION}/auth/google/callback`,
@@ -15,6 +45,7 @@ export function getGoogleAuthUrl(): string {
     scope: 'openid email profile',
     access_type: 'offline',
     prompt: 'select_account',
+    state,
   });
   return `https://accounts.google.com/o/oauth2/v2/auth?${params}`;
 }
@@ -44,11 +75,12 @@ async function exchangeGoogleCode(code: string) {
 
 // ─── GitHub ────────────────────────────────────────────────────────────────
 
-export function getGithubAuthUrl(): string {
+export function getGithubAuthUrl(state: string): string {
   const params = new URLSearchParams({
     client_id: config.GITHUB_CLIENT_ID!,
     redirect_uri: `${config.SERVER_URL}/api/${config.API_VERSION}/auth/github/callback`,
     scope: 'read:user user:email',
+    state,
   });
   return `https://github.com/login/oauth/authorize?${params}`;
 }
@@ -114,6 +146,13 @@ async function findOrCreateOAuthUser(
           avatarUrl: user.avatarUrl ?? avatarUrl,
         },
       });
+      audit({
+        userId: user.id,
+        action: 'OAUTH_ACCOUNT_LINKED',
+        entityType: 'user',
+        entityId: user.id,
+        metadata: { provider },
+      });
       logger.info(`Linked ${provider} OAuth to existing account`, { userId: user.id });
     } else {
       // 3. Create new user
@@ -121,12 +160,11 @@ async function findOrCreateOAuthUser(
         data: {
           email,
           name,
-          passwordHash: null,
-          [idField]: providerId,
           avatarUrl,
           role: UserRole.PARENT,
           emailVerified: true,
           verifiedAt: new Date(),
+          ...(provider === 'google' ? { googleId: providerId } : { githubId: providerId }),
         },
       });
 
@@ -138,9 +176,25 @@ async function findOrCreateOAuthUser(
         logger.warn('Could not claim pending invites on OAuth register', { userId: user!.id, err });
       });
 
+      audit({
+        userId: user.id,
+        action: 'USER_REGISTERED',
+        entityType: 'user',
+        entityId: user.id,
+        metadata: { provider, method: 'oauth' },
+      });
+
       logger.info(`New user via ${provider} OAuth`, { userId: user.id, email: user.email });
     }
   }
+
+  audit({
+    userId: user.id,
+    action: 'OAUTH_LOGIN',
+    entityType: 'user',
+    entityId: user.id,
+    metadata: { provider },
+  });
 
   const tokens = await authService.generateTokens(user.id, user.email, user.role as UserRole);
   return { user: sanitizeUser(user as unknown as Record<string, unknown>), ...tokens };

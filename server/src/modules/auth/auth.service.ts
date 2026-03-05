@@ -11,6 +11,8 @@ import { sanitizeUser } from '../../utils/helpers';
 import { createToken, verifyToken } from '../../services/token.service';
 import { sendEmail } from '../../services/email.service';
 import { verificationEmail } from '../../services/email-templates';
+import { audit } from '../../services/audit.service';
+import { blacklistAccessToken } from '../../services/tokenBlacklist.service';
 
 class AuthService {
   async register(input: RegisterInput) {
@@ -57,6 +59,7 @@ class AuthService {
       logger.warn('Could not send verification email', { userId: user.id, err });
     }
 
+    audit({ userId: user.id, action: 'USER_REGISTERED', entityType: 'user', entityId: user.id });
     logger.info('User registered', { userId: user.id, email: user.email });
 
     return { message: 'Account created. Please check your email to verify your account.', email: user.email };
@@ -106,6 +109,7 @@ class AuthService {
     // Verify password
     const isValid = await bcrypt.compare(input.password, user.passwordHash);
     if (!isValid) {
+      audit({ userId: user.id, action: 'USER_LOGIN_FAILED', entityType: 'user', entityId: user.id, metadata: { reason: 'invalid_password' } });
       throw new UnauthorizedError('Invalid email or password');
     }
 
@@ -117,6 +121,7 @@ class AuthService {
     // Generate tokens
     const tokens = await this.generateTokens(user.id, user.email, user.role as UserRole);
 
+    audit({ userId: user.id, action: 'USER_LOGIN', entityType: 'user', entityId: user.id });
     logger.info('User logged in', { userId: user.id });
 
     return {
@@ -136,6 +141,7 @@ class AuthService {
       data: { emailVerified: true, verifiedAt: new Date() },
     });
 
+    audit({ userId: record.userId, action: 'EMAIL_VERIFIED', entityType: 'user', entityId: record.userId });
     logger.info('Email verified', { userId: record.userId });
     return { verified: true };
   }
@@ -187,7 +193,7 @@ class AuthService {
     };
   }
 
-  async logout(userId: string, refreshToken?: string) {
+  async logout(userId: string, refreshToken?: string, accessToken?: string) {
     if (refreshToken) {
       // Delete only the specific session's refresh token
       await prisma.refreshToken.deleteMany({ where: { userId, token: refreshToken } });
@@ -195,6 +201,13 @@ class AuthService {
       // Fallback: delete all refresh tokens for the user
       await prisma.refreshToken.deleteMany({ where: { userId } });
     }
+
+    // Blacklist the current access token so it can't be reused
+    if (accessToken) {
+      await blacklistAccessToken(accessToken);
+    }
+
+    audit({ userId, action: 'USER_LOGOUT', entityType: 'user', entityId: userId });
     logger.info('User logged out', { userId });
   }
 
@@ -261,6 +274,7 @@ class AuthService {
     // Delete all refresh tokens (force re-login everywhere)
     await prisma.refreshToken.deleteMany({ where: { userId: user.id } });
 
+    audit({ userId: user.id, action: 'PASSWORD_RESET', entityType: 'user', entityId: user.id });
     logger.info('Password reset via child verification', { userId: user.id });
 
     return { success: true };

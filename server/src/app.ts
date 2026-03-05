@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import hpp from 'hpp';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import { config } from './config';
@@ -28,7 +29,26 @@ const app = express();
 app.set('trust proxy', 1);
 
 // ─── Security ─────────────────────────────────────────
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+        connectSrc: ["'self'"],
+        fontSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        frameAncestors: ["'none'"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"],
+      },
+    },
+    crossOriginEmbedderPolicy: false, // Allow loading cross-origin images
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  })
+);
 app.use(
   cors({
     origin: config.CLIENT_URL,
@@ -37,6 +57,7 @@ app.use(
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
+app.use(hpp());
 
 // ─── Parsing ──────────────────────────────────────────
 app.use(express.json({ limit: '10mb' }));

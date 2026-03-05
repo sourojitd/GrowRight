@@ -32,7 +32,8 @@ export class AuthController {
 
   async logout(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      await authService.logout(req.user!.userId, req.body.refreshToken);
+      const accessToken = req.headers.authorization?.slice(7);
+      await authService.logout(req.user!.userId, req.body.refreshToken, accessToken);
       res.json({ success: true, message: 'Logged out successfully' });
     } catch (error) {
       next(error);
