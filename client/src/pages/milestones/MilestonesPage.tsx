@@ -147,14 +147,16 @@ export default function MilestonesPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
             transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-            className="status-pill-border fixed bottom-6 left-1/2 -translate-x-1/2 z-50 rounded-full"
+            className="fixed bottom-6 left-0 lg:left-[260px] w-full lg:w-[calc(100%-260px)] z-50 flex justify-center pointer-events-none"
           >
-            <div className="flex items-center gap-2 rounded-full px-4 py-2 glass shadow-lg">
-              <Target className="w-3.5 h-3.5 text-accent-blue shrink-0" />
-              <span className="text-caption font-semibold text-text-primary tabular-nums whitespace-nowrap">
-                {summary.achieved}
-                <span className="font-normal text-text-secondary"> of {summary.total} achieved</span>
-              </span>
+            <div className="status-pill-border rounded-full pointer-events-auto">
+              <div className="flex items-center gap-2 rounded-full px-4 py-2 glass shadow-lg">
+                <Target className="w-3.5 h-3.5 text-accent-blue shrink-0" />
+                <span className="text-caption font-semibold text-text-primary tabular-nums whitespace-nowrap">
+                  {summary.achieved}
+                  <span className="font-normal text-text-secondary"> of {summary.total} achieved</span>
+                </span>
+              </div>
             </div>
           </motion.div>
         )}
